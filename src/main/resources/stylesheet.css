@@ -1,0 +1,61 @@
+.scene-section {
+    -fx-background-color: #707070;
+}
+
+.left-bar {
+    -fx-background-color: #707070;
+}
+
+.operations-bar {
+    -fx-background-color: #707070;
+}
+
+.content-section {
+    -fx-background-color: #707070;
+}
+
+.scroll-pane {
+    -fx-background-color: #EEEEEE;
+    -fx-border-insets: 5px;
+    -fx-border-color: #000000;
+}
+
+.scroll-pane > .viewport {
+    -fx-background-color: transparent;
+}
+
+.canvas-section-outer {
+    -fx-background-color: #707070;
+}
+
+.canvas-section {
+    -fx-background-color: #EEEEEE;
+}
+
+.bottom-section {
+    -fx-background-color: #EEEEEE;
+}
+
+.tab-pane {
+    -fx-background-color: transparent;
+}
+
+.tab-pane > *.tab-header-area > *.tab-header-background {
+    -fx-background-color: #707070;
+    -fx-background-insets: 0 0 0 0;
+}
+
+.tab-pane:focused .tab-header-area .headers-region .tab:selected .focus-indicator {
+    -fx-border-width: 0;
+    -fx-border-insets: 0 0 0 0;
+    -fx-border-radius: 0;
+}
+
+.properties-section {
+    -fx-background-color: #EEEEEE;
+}
+
+.canvas-properties-section {
+    -fx-background-color: #EEEEEE;
+    -fx-padding: 5;
+}
