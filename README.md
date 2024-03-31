@@ -1,6 +1,19 @@
 # Simple CAD
 
-Simple CAD is a JavaFX desktop application.
+![Document](https://github.com/sitMCella/simple-cad/wiki/images/simple_cad.png)
+
+## Table of contents
+
+* [Introduction](#introduction)
+* [Development](#development)
+    * [Requirements](#requirements)
+    * [Development](#development)
+
+## Introduction
+
+Simple CAD is a desktop application that aims to provide a general purpuse 2D CAD modeler.
+
+Read the [documentation](https://github.com/sitMCella/simple-cad/wiki) in order to discover the features of Document Versions.
 
 ## Development
 
@@ -8,7 +21,7 @@ Simple CAD is a JavaFX desktop application.
 
 Apache Maven >= 3.6.x, Java 21.
 
-### Build
+### Development
 
 Build the application:
 
