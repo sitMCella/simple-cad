@@ -1,8 +1,10 @@
 package de.sitmcella.simplecad;
 
+import atlantafx.base.theme.PrimerDark;
 import de.sitmcella.simplecad.menu.ApplicationMenu;
 import de.sitmcella.simplecad.property.CanvasProperties;
 import de.sitmcella.simplecad.property.CanvasSizeProperty;
+import java.util.Objects;
 import javafx.application.Application;
 import javafx.scene.Group;
 import javafx.scene.Node;
@@ -21,6 +23,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Line;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -38,7 +41,7 @@ public class App extends Application {
         var javaVersion = SystemInfo.javaVersion();
         var javafxVersion = SystemInfo.javafxVersion();
         logger.info("Java version: " + javaVersion + " - JavaFX version: " + javafxVersion);
-
+        stage.initStyle(StageStyle.DECORATED);
         stage.setTitle("Simple CAD");
 
         Pane canvasSection = new Pane();
@@ -112,15 +115,22 @@ public class App extends Application {
         hbox.getStyleClass().add("content-section");
         hbox.setSpacing(5);
         VBox vbox = new VBox(menuBar, hbox);
-        vbox.getStyleClass().add("scene-section");
         cadProject.configureEventListeners(vbox);
         Group root = new Group(vbox);
+        root.getStyleClass().add("scene-section");
 
         var scene = new Scene(root, 600, 500);
-        scene.getStylesheets().add(getClass().getResource("/stylesheet.css").toExternalForm());
+        scene.getStylesheets()
+                .add(
+                        Objects.requireNonNull(getClass().getResource("/stylesheet.css"))
+                                .toExternalForm());
         stage.setScene(scene);
         stage.getIcons()
-                .add(new Image(getClass().getResource("/favicon-32x32.png").toExternalForm()));
+                .add(
+                        new Image(
+                                Objects.requireNonNull(getClass().getResource("/favicon-32x32.png"))
+                                        .toExternalForm()));
+        Application.setUserAgentStylesheet(new PrimerDark().getUserAgentStylesheet());
         stage.show();
         stageWidth = stage.getWidth();
         stageHeight = stage.getHeight();

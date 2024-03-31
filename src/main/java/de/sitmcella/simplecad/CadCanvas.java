@@ -77,13 +77,17 @@ public class CadCanvas implements CanvasPropertyListener {
         canvasPoints.add(canvasPoint);
     }
 
-    public CanvasPoint selectClosePoint(MouseEvent event) {
+    public CanvasPoint selectClosePoint(MouseEvent event, boolean isSelected) {
         var closestPoint =
                 canvasPoints.stream()
                         .filter(
                                 point ->
-                                        Math.abs(point.x() - event.getX()) < 5
-                                                && Math.abs(point.y() - event.getY()) < 5)
+                                        isSelected
+                                                ? (point.mainShape() == this.selectedShape
+                                                        && Math.abs(point.x() - event.getX()) < 5
+                                                        && Math.abs(point.y() - event.getY()) < 5)
+                                                : (Math.abs(point.x() - event.getX()) < 5
+                                                        && Math.abs(point.y() - event.getY()) < 5))
                         .findFirst();
         return closestPoint.orElse(null);
     }

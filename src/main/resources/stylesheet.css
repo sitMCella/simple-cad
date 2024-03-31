@@ -1,21 +1,21 @@
 .scene-section {
-    -fx-background-color: #707070;
+    -fx-background-color: #000000;
 }
 
 .left-bar {
-    -fx-background-color: #707070;
+    -fx-background-color: #000000;
 }
 
 .operations-bar {
-    -fx-background-color: #707070;
+    -fx-background-color: #000000;
 }
 
 .content-section {
-    -fx-background-color: #707070;
+    -fx-background-color: #000000;
 }
 
 .scroll-pane {
-    -fx-background-color: #EEEEEE;
+    -fx-background-color: #000000;
     -fx-border-insets: 5px;
     -fx-border-color: #000000;
 }
@@ -25,15 +25,15 @@
 }
 
 .canvas-section-outer {
-    -fx-background-color: #707070;
+    -fx-background-color: #000000;
 }
 
 .canvas-section {
-    -fx-background-color: #EEEEEE;
+    -fx-background-color: #d4d4d4;
 }
 
 .bottom-section {
-    -fx-background-color: #EEEEEE;
+    -fx-background-color: #000000;
 }
 
 .tab-pane {
@@ -41,7 +41,7 @@
 }
 
 .tab-pane > *.tab-header-area > *.tab-header-background {
-    -fx-background-color: #707070;
+    -fx-background-color: #000000;
     -fx-background-insets: 0 0 0 0;
 }
 
@@ -52,10 +52,10 @@
 }
 
 .properties-section {
-    -fx-background-color: #EEEEEE;
+    -fx-background-color: #000000;
 }
 
 .canvas-properties-section {
-    -fx-background-color: #EEEEEE;
+    -fx-background-color: #000000;
     -fx-padding: 5;
 }

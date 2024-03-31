@@ -135,8 +135,8 @@ public class CadProject implements MenuItemListener, ShapeDrawerListener, Operat
         if (this.drawerProperties.drawAction() == DrawActions.SELECT) {
             if (cadCanvas.selectedShape != null) {
                 var event = (MouseEvent) shapeDrawerEvent.getSource();
-                var closestPoint = this.cadCanvas.selectClosePoint(event);
-                if (closestPoint != null && cadCanvas.selectedShape == closestPoint.mainShape()) {
+                var closestPoint = this.cadCanvas.selectClosePoint(event, true);
+                if (closestPoint != null) {
                     this.cadCanvas.cleanPoints(closestPoint);
                     var shape = this.line.use(cadCanvas.selectedShape, closestPoint.circle());
                     cadCanvas.recreatePoint(closestPoint, shape);

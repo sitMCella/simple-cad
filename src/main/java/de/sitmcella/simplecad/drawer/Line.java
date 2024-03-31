@@ -29,7 +29,7 @@ public class Line extends Shape implements ShapeDrawer {
 
     public Shapes handleMouseClick(MouseEvent event) {
         if (this.actionOngoing) {
-            var closestPoint = this.cadCanvas.selectClosePoint(event);
+            var closestPoint = this.cadCanvas.selectClosePoint(event, false);
             if (closestPoint != null) {
                 var point = closestPoint.circle();
                 updateLine(point.getCenterX(), point.getCenterY());
@@ -48,7 +48,7 @@ public class Line extends Shape implements ShapeDrawer {
             return new Shapes(shapes, line);
         } else {
             Circle startPoint = new Circle(event.getX(), event.getY(), 3.0d);
-            var closestPoint = this.cadCanvas.selectClosePoint(event);
+            var closestPoint = this.cadCanvas.selectClosePoint(event, false);
             if (closestPoint != null) {
                 var point = closestPoint.circle();
                 startPoint = new Circle(point.getCenterX(), point.getCenterY(), 3.0d);
@@ -70,7 +70,7 @@ public class Line extends Shape implements ShapeDrawer {
     }
 
     public void handleMouseMove(MouseEvent event) {
-        var closestPoint = this.cadCanvas.selectClosePoint(event);
+        var closestPoint = this.cadCanvas.selectClosePoint(event, false);
         if (closestPoint != null) {
             var point = closestPoint.circle();
             updateLine(point.getCenterX(), point.getCenterY());
