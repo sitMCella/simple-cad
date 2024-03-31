@@ -13,7 +13,7 @@
 
 Simple CAD is a desktop application that aims to provide a general purpuse 2D CAD modeler.
 
-Read the [documentation](https://github.com/sitMCella/simple-cad/wiki) in order to discover the features of Document Versions.
+Read the [documentation](https://github.com/sitMCella/simple-cad/wiki) in order to discover the features of Simple CAD.
 
 ## Development
 
