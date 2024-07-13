@@ -20,7 +20,11 @@ import de.sitmcella.simplecad.operation.OperationAction;
 import de.sitmcella.simplecad.operation.OperationChangedEvent;
 import de.sitmcella.simplecad.operation.OperationListener;
 import de.sitmcella.simplecad.operation.Point;
-import de.sitmcella.simplecad.property.CanvasProperties;
+import de.sitmcella.simplecad.property.CadProperties;
+import de.sitmcella.simplecad.property.CanvasPropertyChangeEvent;
+import de.sitmcella.simplecad.property.CanvasPropertyListener;
+import de.sitmcella.simplecad.property.CanvasSizeProperty;
+import de.sitmcella.simplecad.property.LineProperty;
 import de.sitmcella.simplecad.property.ShapeType;
 import de.sitmcella.simplecad.storage.CanvasStorage;
 import java.util.ArrayList;
@@ -37,13 +41,17 @@ import javafx.scene.layout.VBox;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-public class CadProject implements MenuItemListener, ShapeDrawerListener, OperationListener {
+public class CadProject
+        implements MenuItemListener,
+                ShapeDrawerListener,
+                OperationListener,
+                CanvasPropertyListener {
 
     private static final Logger logger = LogManager.getLogger();
 
     private final Pane pane;
 
-    private final CanvasProperties canvasProperties;
+    private final CadProperties cadProperties;
 
     private final CadCanvas cadCanvas;
 
@@ -65,13 +73,13 @@ public class CadProject implements MenuItemListener, ShapeDrawerListener, Operat
 
     private final CanvasStorage canvasStorage;
 
-    public CadProject(final Pane pane, final CanvasProperties canvasProperties) {
+    public CadProject(final Pane pane, final CadProperties cadProperties) {
         this.pane = pane;
-        this.canvasProperties = canvasProperties;
+        this.cadProperties = cadProperties;
         this.drawerProperties =
                 new DrawerProperties(DrawActions.SELECT, OperationAction.NULL, false);
         this.cadCanvas = new CadCanvas(pane, drawerProperties);
-        this.canvasProperties.addListener(this.cadCanvas);
+        this.cadProperties.addListener(this);
         this.select = new Select(this.cadCanvas, this);
         this.line = new Line(this.cadCanvas, this);
         this.shapeDrawers =
@@ -92,7 +100,7 @@ public class CadProject implements MenuItemListener, ShapeDrawerListener, Operat
                         add(point);
                     }
                 };
-        this.canvasStorage = new CanvasStorage(cadCanvas);
+        this.canvasStorage = new CanvasStorage(cadCanvas, line);
     }
 
     public void configureEventListeners(VBox root) {
@@ -160,14 +168,14 @@ public class CadProject implements MenuItemListener, ShapeDrawerListener, Operat
                 } else {
                     cadCanvas.hoverShape = null;
                     cadCanvas.selectShape(event);
-                    this.canvasProperties.addConfiguration(ShapeType.CANVAS, null);
+                    this.cadProperties.addConfiguration(ShapeType.CANVAS, null);
                 }
             } else {
                 this.cadCanvas.selectShape((MouseEvent) shapeDrawerEvent.getSource());
                 if (this.cadCanvas.selectedShape != null) {
-                    this.canvasProperties.addConfiguration(ShapeType.LINE, cadCanvas.selectedShape);
+                    this.cadProperties.addConfiguration(ShapeType.LINE, cadCanvas.selectedShape);
                 } else {
-                    this.canvasProperties.addConfiguration(ShapeType.CANVAS, null);
+                    this.cadProperties.addConfiguration(ShapeType.CANVAS, null);
                 }
             }
         }
@@ -189,6 +197,26 @@ public class CadProject implements MenuItemListener, ShapeDrawerListener, Operat
         this.cadCanvas.triggerOperation(shape);
     }
 
+    @Override
+    public void canvasPropertyChanged(CanvasPropertyChangeEvent canvasPropertyChangeEvent) {
+        var canvasProperty = canvasPropertyChangeEvent.getCanvasProperty();
+        switch (canvasProperty.getShapeType()) {
+            case CANVAS -> {
+                var canvasSizeProperty = (CanvasSizeProperty) canvasProperty.getProperty();
+                this.cadCanvas.setCanvasSize(
+                        canvasSizeProperty.canvasWidth(), canvasSizeProperty.canvasHeight());
+            }
+            case LINE -> {
+                if (this.cadCanvas.selectedShape == null) {
+                    return;
+                }
+                var lineProperty = (LineProperty) canvasProperty.getProperty();
+                var line = (javafx.scene.shape.Line) this.cadCanvas.selectedShape;
+                this.line.update(line, lineProperty);
+            }
+        }
+    }
+
     public List<Shape> getShapeDrawers() {
         return shapeDrawers;
     }
@@ -205,7 +233,7 @@ public class CadProject implements MenuItemListener, ShapeDrawerListener, Operat
         Shapes shapes = getShapeDrawer().handleMouseClick(event);
         this.cadCanvas.addShapes(shapes);
         if (shapes != null && !shapes.shapes().isEmpty()) {
-            this.canvasProperties.addConfiguration(ShapeType.CANVAS, null);
+            this.cadProperties.addConfiguration(ShapeType.CANVAS, null);
         }
     }
 

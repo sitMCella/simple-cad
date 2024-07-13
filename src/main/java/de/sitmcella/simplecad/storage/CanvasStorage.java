@@ -22,8 +22,11 @@ public class CanvasStorage {
 
     private final CadCanvas cadCanvas;
 
-    public CanvasStorage(final CadCanvas cadCanvas) {
+    private final de.sitmcella.simplecad.drawer.Line line;
+
+    public CanvasStorage(final CadCanvas cadCanvas, final de.sitmcella.simplecad.drawer.Line line) {
         this.cadCanvas = cadCanvas;
+        this.line = line;
     }
 
     public void save() {
@@ -85,7 +88,8 @@ public class CanvasStorage {
                     double startY = Double.parseDouble(data.get(2));
                     double endX = Double.parseDouble(data.get(3));
                     double endY = Double.parseDouble(data.get(4));
-                    this.cadCanvas.addLineShape(startX, startY, endX, endY);
+                    var shapes = this.line.createLineShape(startX, startY, endX, endY);
+                    this.cadCanvas.addShapes(shapes);
                 }
             }
         } catch (FileNotFoundException e) {

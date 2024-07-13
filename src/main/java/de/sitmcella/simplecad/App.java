@@ -2,7 +2,7 @@ package de.sitmcella.simplecad;
 
 import atlantafx.base.theme.PrimerDark;
 import de.sitmcella.simplecad.menu.ApplicationMenu;
-import de.sitmcella.simplecad.property.CanvasProperties;
+import de.sitmcella.simplecad.property.CadProperties;
 import de.sitmcella.simplecad.property.CanvasSizeProperty;
 import java.util.Objects;
 import javafx.application.Application;
@@ -27,7 +27,6 @@ import javafx.stage.StageStyle;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-/** JavaFX Application */
 public class App extends Application {
 
     private static final Logger logger = LogManager.getLogger();
@@ -86,9 +85,9 @@ public class App extends Application {
         tabPane.getTabs().add(propertiesTab);
         Pane rightPanelSection = new Pane(tabPane);
 
-        CanvasProperties canvasProperties =
-                new CanvasProperties(propertiesTab, new CanvasSizeProperty(2000, 1900));
-        CadProject cadProject = new CadProject(canvasSection, canvasProperties);
+        CadProperties cadProperties =
+                new CadProperties(propertiesTab, new CanvasSizeProperty(2000, 1900));
+        CadProject cadProject = new CadProject(canvasSection, cadProperties);
 
         ApplicationMenu applicationMenu = new ApplicationMenu(cadProject);
         MenuBar menuBar = applicationMenu.create();
