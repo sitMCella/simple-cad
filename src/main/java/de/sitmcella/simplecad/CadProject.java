@@ -21,6 +21,10 @@ import de.sitmcella.simplecad.operation.OperationChangedEvent;
 import de.sitmcella.simplecad.operation.OperationListener;
 import de.sitmcella.simplecad.operation.Point;
 import de.sitmcella.simplecad.property.CadProperties;
+import de.sitmcella.simplecad.property.CanvasPropertyChangeEvent;
+import de.sitmcella.simplecad.property.CanvasPropertyListener;
+import de.sitmcella.simplecad.property.CanvasSizeProperty;
+import de.sitmcella.simplecad.property.LineProperty;
 import de.sitmcella.simplecad.property.ShapeType;
 import de.sitmcella.simplecad.storage.CanvasStorage;
 import java.util.ArrayList;
@@ -37,7 +41,11 @@ import javafx.scene.layout.VBox;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-public class CadProject implements MenuItemListener, ShapeDrawerListener, OperationListener {
+public class CadProject
+        implements MenuItemListener,
+                ShapeDrawerListener,
+                OperationListener,
+                CanvasPropertyListener {
 
     private static final Logger logger = LogManager.getLogger();
 
@@ -71,7 +79,7 @@ public class CadProject implements MenuItemListener, ShapeDrawerListener, Operat
         this.drawerProperties =
                 new DrawerProperties(DrawActions.SELECT, OperationAction.NULL, false);
         this.cadCanvas = new CadCanvas(pane, drawerProperties);
-        this.cadProperties.addListener(this.cadCanvas);
+        this.cadProperties.addListener(this);
         this.select = new Select(this.cadCanvas, this);
         this.line = new Line(this.cadCanvas, this);
         this.shapeDrawers =
@@ -187,6 +195,26 @@ public class CadProject implements MenuItemListener, ShapeDrawerListener, Operat
             shape = line;
         }
         this.cadCanvas.triggerOperation(shape);
+    }
+
+    @Override
+    public void canvasPropertyChanged(CanvasPropertyChangeEvent canvasPropertyChangeEvent) {
+        var canvasProperty = canvasPropertyChangeEvent.getCanvasProperty();
+        switch (canvasProperty.getShapeType()) {
+            case CANVAS -> {
+                var canvasSizeProperty = (CanvasSizeProperty) canvasProperty.getProperty();
+                this.cadCanvas.setCanvasSize(
+                        canvasSizeProperty.canvasWidth(), canvasSizeProperty.canvasHeight());
+            }
+            case LINE -> {
+                if (this.cadCanvas.selectedShape == null) {
+                    return;
+                }
+                var lineProperty = (LineProperty) canvasProperty.getProperty();
+                var line = (javafx.scene.shape.Line) this.cadCanvas.selectedShape;
+                this.line.update(line, lineProperty);
+            }
+        }
     }
 
     public List<Shape> getShapeDrawers() {

@@ -4,20 +4,16 @@ import de.sitmcella.simplecad.drawer.DrawActions;
 import de.sitmcella.simplecad.drawer.DrawerProperties;
 import de.sitmcella.simplecad.drawer.ShapeDrawer;
 import de.sitmcella.simplecad.drawer.Shapes;
-import de.sitmcella.simplecad.property.CanvasPropertyChangeEvent;
-import de.sitmcella.simplecad.property.CanvasPropertyListener;
 import de.sitmcella.simplecad.property.CanvasSizeProperty;
-import de.sitmcella.simplecad.property.LineProperty;
 import java.util.ArrayList;
 import java.util.List;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
-import javafx.scene.shape.Line;
 import javafx.scene.shape.Shape;
 
-public class CadCanvas implements CanvasPropertyListener {
+public class CadCanvas {
 
     private final Pane pane;
 
@@ -169,6 +165,14 @@ public class CadCanvas implements CanvasPropertyListener {
         }
     }
 
+    public CanvasPoint getPoint(Shape mainShape, double x, double y) {
+        return this.canvasPoints.stream()
+                .filter(canvasPoint -> canvasPoint.mainShape() == mainShape)
+                .filter(canvasPoint -> canvasPoint.x() == x && canvasPoint.y() == y)
+                .findFirst()
+                .get();
+    }
+
     public void cleanPoints(CanvasPoint closestPoint) {
         var pointsToDelete =
                 this.canvasPoints.stream()
@@ -186,6 +190,17 @@ public class CadCanvas implements CanvasPropertyListener {
                 new CanvasPoint(closestPoint.x(), closestPoint.y(), closestPoint.circle(), shape));
     }
 
+    public void addPoint(double x, double y, Circle circle, Shape shape) {
+        circle.setCenterX(x);
+        circle.setCenterY(y);
+        var point = new CanvasPoint(x, y, circle, shape);
+        this.canvasPoints.add(point);
+    }
+
+    public void removePoint(CanvasPoint point) {
+        this.canvasPoints.remove(point);
+    }
+
     public void clearCanvas() {
         this.pane.getChildren().clear();
         this.shapes.clear();
@@ -201,67 +216,6 @@ public class CadCanvas implements CanvasPropertyListener {
                 .map(CanvasPoint::circle)
                 .forEach(point -> this.pane.getChildren().remove(point));
         this.canvasPoints.removeAll(points);
-    }
-
-    @Override
-    public void canvasPropertyChanged(CanvasPropertyChangeEvent canvasPropertyChangeEvent) {
-        var canvasProperty = canvasPropertyChangeEvent.getCanvasProperty();
-        switch (canvasProperty.getShapeType()) {
-            case CANVAS -> {
-                var canvasSizeProperty = (CanvasSizeProperty) canvasProperty.getProperty();
-                setCanvasSize(canvasSizeProperty.canvasWidth(), canvasSizeProperty.canvasHeight());
-            }
-            case LINE -> {
-                if (this.selectedShape == null) {
-                    return;
-                }
-                var lineProperty = (LineProperty) canvasProperty.getProperty();
-                var line = (Line) this.selectedShape;
-                var lineStartX = line.getStartX();
-                var lineStartY = line.getStartY();
-                var lineEndX = line.getEndX();
-                var lineEndY = line.getEndY();
-                line.setStartX(lineProperty.startX());
-                line.setStartY(lineProperty.startY());
-                line.setEndX(lineProperty.endX());
-                line.setEndY(lineProperty.endY());
-                this.selectedShape = line;
-                var initialStartPoint =
-                        this.canvasPoints.stream()
-                                .filter(canvasPoint -> canvasPoint.mainShape() == line)
-                                .filter(
-                                        canvasPoint ->
-                                                canvasPoint.x() == lineStartX
-                                                        && canvasPoint.y() == lineStartY)
-                                .findFirst()
-                                .get();
-                var startCircle = initialStartPoint.circle();
-                this.canvasPoints.remove(initialStartPoint);
-                startCircle.setCenterX(lineProperty.startX());
-                startCircle.setCenterY(lineProperty.startY());
-                var newStartPoint =
-                        new CanvasPoint(
-                                lineProperty.startX(), lineProperty.startY(), startCircle, line);
-                this.canvasPoints.add(newStartPoint);
-
-                var initialEndPoint =
-                        this.canvasPoints.stream()
-                                .filter(canvasPoint -> canvasPoint.mainShape() == line)
-                                .filter(
-                                        canvasPoint ->
-                                                canvasPoint.x() == lineEndX
-                                                        && canvasPoint.y() == lineEndY)
-                                .findFirst()
-                                .get();
-                var endCircle = initialEndPoint.circle();
-                this.canvasPoints.remove(initialEndPoint);
-                endCircle.setCenterX(lineProperty.endX());
-                endCircle.setCenterY(lineProperty.endY());
-                var newEndPoint =
-                        new CanvasPoint(lineProperty.endX(), lineProperty.endY(), endCircle, line);
-                this.canvasPoints.add(newEndPoint);
-            }
-        }
     }
 
     public void setCanvasSize(double width, double height) {

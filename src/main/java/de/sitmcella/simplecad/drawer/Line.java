@@ -1,6 +1,7 @@
 package de.sitmcella.simplecad.drawer;
 
 import de.sitmcella.simplecad.CadCanvas;
+import de.sitmcella.simplecad.property.LineProperty;
 import java.util.ArrayList;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
@@ -99,6 +100,27 @@ public class Line extends Shape implements ShapeDrawer {
         shapes.add(line);
         shapes.add(endPoint);
         return new Shapes(shapes, line);
+    }
+
+    public void update(javafx.scene.shape.Line line, final LineProperty lineProperty) {
+        var lineStartX = line.getStartX();
+        var lineStartY = line.getStartY();
+        var lineEndX = line.getEndX();
+        var lineEndY = line.getEndY();
+        line.setStartX(lineProperty.startX());
+        line.setStartY(lineProperty.startY());
+        line.setEndX(lineProperty.endX());
+        line.setEndY(lineProperty.endY());
+        this.cadCanvas.selectedShape = line;
+        var initialStartPoint = this.cadCanvas.getPoint(line, lineStartX, lineStartY);
+        var startCircle = initialStartPoint.circle();
+        this.cadCanvas.removePoint(initialStartPoint);
+        this.cadCanvas.addPoint(lineProperty.startX(), lineProperty.startY(), startCircle, line);
+
+        var initialEndPoint = this.cadCanvas.getPoint(line, lineEndX, lineEndY);
+        var endCircle = initialEndPoint.circle();
+        this.cadCanvas.removePoint(initialEndPoint);
+        this.cadCanvas.addPoint(lineProperty.endX(), lineProperty.endY(), endCircle, line);
     }
 
     private javafx.scene.shape.Line create(double startX, double startY, double endX, double endY) {
