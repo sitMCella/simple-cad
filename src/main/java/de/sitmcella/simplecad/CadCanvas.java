@@ -51,26 +51,6 @@ public class CadCanvas implements CanvasPropertyListener {
         }
     }
 
-    public void addLineShape(double startX, double startY, double endX, double endY) {
-        javafx.scene.shape.Line line = new javafx.scene.shape.Line();
-        line.setStartX(startX);
-        line.setStartY(startY);
-        line.setEndX(endX);
-        line.setEndY(endY);
-        line.setStrokeWidth(1.0);
-        line.setOnMouseEntered(this::handleShapeMouseEntered);
-        line.setOnMouseExited(this::handleShapeMouseExited);
-        Circle startPoint = new Circle(startX, startY, 3.0d);
-        startPoint.setOnMouseExited(this::handlePointMouseExited);
-        Circle endPoint = new Circle(endX, endY, 3.0d);
-        endPoint.setOnMouseExited(this::handlePointMouseExited);
-        var shapes = new ArrayList<javafx.scene.shape.Shape>();
-        shapes.add(startPoint);
-        shapes.add(line);
-        shapes.add(endPoint);
-        addShapes(new Shapes(shapes, line));
-    }
-
     public void addPointCoordinates(Circle circle, Shape mainShape) {
         CanvasPoint canvasPoint =
                 new CanvasPoint(circle.getCenterX(), circle.getCenterY(), circle, mainShape);

@@ -85,11 +85,15 @@ public class Line extends Shape implements ShapeDrawer {
         var startY = originalShape.getStartY() - 20;
         var endX = originalShape.getEndX() - 20;
         var endY = originalShape.getEndY() - 20;
+        return createLineShape(startX, startY, endX, endY);
+    }
+
+    public Shapes createLineShape(double startX, double startY, double endX, double endY) {
+        javafx.scene.shape.Line line = create(startX, startY, endX, endY);
         Circle startPoint = new Circle(startX, startY, 3.0d);
         startPoint.setOnMouseExited(this.cadCanvas::handlePointMouseExited);
         Circle endPoint = new Circle(endX, endY, 3.0d);
         endPoint.setOnMouseExited(this.cadCanvas::handlePointMouseExited);
-        javafx.scene.shape.Line line = create(startX, startY, endX, endY);
         var shapes = new ArrayList<javafx.scene.shape.Shape>();
         shapes.add(startPoint);
         shapes.add(line);

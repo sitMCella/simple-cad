@@ -20,7 +20,7 @@ import de.sitmcella.simplecad.operation.OperationAction;
 import de.sitmcella.simplecad.operation.OperationChangedEvent;
 import de.sitmcella.simplecad.operation.OperationListener;
 import de.sitmcella.simplecad.operation.Point;
-import de.sitmcella.simplecad.property.CanvasProperties;
+import de.sitmcella.simplecad.property.CadProperties;
 import de.sitmcella.simplecad.property.ShapeType;
 import de.sitmcella.simplecad.storage.CanvasStorage;
 import java.util.ArrayList;
@@ -43,7 +43,7 @@ public class CadProject implements MenuItemListener, ShapeDrawerListener, Operat
 
     private final Pane pane;
 
-    private final CanvasProperties canvasProperties;
+    private final CadProperties cadProperties;
 
     private final CadCanvas cadCanvas;
 
@@ -65,13 +65,13 @@ public class CadProject implements MenuItemListener, ShapeDrawerListener, Operat
 
     private final CanvasStorage canvasStorage;
 
-    public CadProject(final Pane pane, final CanvasProperties canvasProperties) {
+    public CadProject(final Pane pane, final CadProperties cadProperties) {
         this.pane = pane;
-        this.canvasProperties = canvasProperties;
+        this.cadProperties = cadProperties;
         this.drawerProperties =
                 new DrawerProperties(DrawActions.SELECT, OperationAction.NULL, false);
         this.cadCanvas = new CadCanvas(pane, drawerProperties);
-        this.canvasProperties.addListener(this.cadCanvas);
+        this.cadProperties.addListener(this.cadCanvas);
         this.select = new Select(this.cadCanvas, this);
         this.line = new Line(this.cadCanvas, this);
         this.shapeDrawers =
@@ -92,7 +92,7 @@ public class CadProject implements MenuItemListener, ShapeDrawerListener, Operat
                         add(point);
                     }
                 };
-        this.canvasStorage = new CanvasStorage(cadCanvas);
+        this.canvasStorage = new CanvasStorage(cadCanvas, line);
     }
 
     public void configureEventListeners(VBox root) {
@@ -160,14 +160,14 @@ public class CadProject implements MenuItemListener, ShapeDrawerListener, Operat
                 } else {
                     cadCanvas.hoverShape = null;
                     cadCanvas.selectShape(event);
-                    this.canvasProperties.addConfiguration(ShapeType.CANVAS, null);
+                    this.cadProperties.addConfiguration(ShapeType.CANVAS, null);
                 }
             } else {
                 this.cadCanvas.selectShape((MouseEvent) shapeDrawerEvent.getSource());
                 if (this.cadCanvas.selectedShape != null) {
-                    this.canvasProperties.addConfiguration(ShapeType.LINE, cadCanvas.selectedShape);
+                    this.cadProperties.addConfiguration(ShapeType.LINE, cadCanvas.selectedShape);
                 } else {
-                    this.canvasProperties.addConfiguration(ShapeType.CANVAS, null);
+                    this.cadProperties.addConfiguration(ShapeType.CANVAS, null);
                 }
             }
         }
@@ -205,7 +205,7 @@ public class CadProject implements MenuItemListener, ShapeDrawerListener, Operat
         Shapes shapes = getShapeDrawer().handleMouseClick(event);
         this.cadCanvas.addShapes(shapes);
         if (shapes != null && !shapes.shapes().isEmpty()) {
-            this.canvasProperties.addConfiguration(ShapeType.CANVAS, null);
+            this.cadProperties.addConfiguration(ShapeType.CANVAS, null);
         }
     }
 
