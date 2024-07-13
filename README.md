@@ -21,6 +21,11 @@ Read the [documentation](https://github.com/sitMCella/simple-cad/wiki) in order 
 
 Apache Maven >= 3.6.x, Java 21.
 
+### Cheat Sheets
+
+Ikonli Material Design 2:
+https://kordamp.org/ikonli/cheat-sheet-materialdesign2.html
+
 ### Development
 
 Build the application:

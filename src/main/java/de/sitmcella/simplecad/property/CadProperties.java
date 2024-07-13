@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import javafx.scene.control.Tab;
 import javafx.scene.shape.Line;
+import javafx.scene.shape.QuadCurve;
 import javafx.scene.shape.Shape;
 
 public class CadProperties {
@@ -16,6 +17,8 @@ public class CadProperties {
 
     private final LineShapeProperties lineShapeProperties;
 
+    private final CurveShapeProperties curveShapeProperties;
+
     public CadProperties(final Tab propertiesTab, final CanvasSizeProperty canvasSizeProperty) {
         this.canvasPropertyListeners = new ArrayList<>();
         this.propertiesUtility = new PropertiesUtility();
@@ -27,6 +30,8 @@ public class CadProperties {
                         propertiesUtility);
         this.lineShapeProperties =
                 new LineShapeProperties(propertiesTab, canvasPropertyListeners, propertiesUtility);
+        this.curveShapeProperties =
+                new CurveShapeProperties(propertiesTab, canvasPropertyListeners, propertiesUtility);
         addConfiguration(ShapeType.CANVAS, null);
     }
 
@@ -41,6 +46,9 @@ public class CadProperties {
             }
             case LINE -> {
                 lineShapeProperties.showLineShapeProperties((Line) shape);
+            }
+            case CURVE -> {
+                curveShapeProperties.showCurveShapeProperties((QuadCurve) shape);
             }
         }
     }

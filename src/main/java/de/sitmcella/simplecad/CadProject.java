@@ -1,5 +1,6 @@
 package de.sitmcella.simplecad;
 
+import de.sitmcella.simplecad.drawer.Curve;
 import de.sitmcella.simplecad.drawer.DrawActions;
 import de.sitmcella.simplecad.drawer.DrawerProperties;
 import de.sitmcella.simplecad.drawer.Line;
@@ -24,6 +25,7 @@ import de.sitmcella.simplecad.property.CadProperties;
 import de.sitmcella.simplecad.property.CanvasPropertyChangeEvent;
 import de.sitmcella.simplecad.property.CanvasPropertyListener;
 import de.sitmcella.simplecad.property.CanvasSizeProperty;
+import de.sitmcella.simplecad.property.CurveProperty;
 import de.sitmcella.simplecad.property.LineProperty;
 import de.sitmcella.simplecad.property.ShapeType;
 import de.sitmcella.simplecad.storage.CanvasStorage;
@@ -59,6 +61,8 @@ public class CadProject
 
     private final Line line;
 
+    private final Curve curve;
+
     private final List<Shape> shapeDrawers;
 
     private final Duplicate duplicate;
@@ -82,11 +86,13 @@ public class CadProject
         this.cadProperties.addListener(this);
         this.select = new Select(this.cadCanvas, this);
         this.line = new Line(this.cadCanvas, this);
+        this.curve = new Curve(this.cadCanvas, this);
         this.shapeDrawers =
                 new ArrayList<>() {
                     {
                         add(select);
                         add(line);
+                        add(curve);
                     }
                 };
         this.duplicate = new Duplicate(this.cadCanvas, this);
@@ -140,42 +146,97 @@ public class CadProject
 
     @Override
     public void shapeDrawer(ShapeDrawerEvent shapeDrawerEvent) {
-        if (this.drawerProperties.drawAction() == DrawActions.SELECT) {
-            if (cadCanvas.selectedShape != null) {
-                var event = (MouseEvent) shapeDrawerEvent.getSource();
-                var closestPoint = this.cadCanvas.selectClosePoint(event, true);
-                if (closestPoint != null) {
-                    this.cadCanvas.cleanPoints(closestPoint);
-                    var shape = this.line.use(cadCanvas.selectedShape, closestPoint.circle());
-                    cadCanvas.recreatePoint(closestPoint, shape);
-                    cadCanvas.selectedShape = null;
-                    this.drawerProperties =
-                            new DrawerProperties(
-                                    DrawActions.LINE_DRAW,
-                                    this.drawerProperties.operationAction(),
-                                    this.drawerProperties.constraintAngles());
-                    this.cadCanvas.setProperties(drawerProperties);
-                    shapeDrawers.stream()
-                            .filter(
-                                    shapeDrawer ->
-                                            shapeDrawer.getDrawAction() == DrawActions.LINE_DRAW)
-                            .forEach(shapeDrawer -> shapeDrawer.getButton().setSelected(true));
-                    shapeDrawers.stream()
-                            .filter(
-                                    shapeDrawer ->
-                                            shapeDrawer.getDrawAction() == DrawActions.SELECT)
-                            .forEach(shapeDrawer -> shapeDrawer.getButton().setSelected(false));
+        switch (this.drawerProperties.drawAction()) {
+            case SELECT -> {
+                if (cadCanvas.selectedShape != null) {
+                    var event = (MouseEvent) shapeDrawerEvent.getSource();
+                    var closestPoint = this.cadCanvas.selectClosePoint(event, true);
+                    if (closestPoint != null) {
+                        this.cadCanvas.cleanPoints(closestPoint);
+                        switch (cadCanvas.selectedShape.getClass().getCanonicalName()) {
+                            case "javafx.scene.shape.Line" -> {
+                                var shape =
+                                        this.line.use(
+                                                cadCanvas.selectedShape, closestPoint.circle());
+                                cadCanvas.recreatePoint(closestPoint, shape);
+                                this.drawerProperties =
+                                        new DrawerProperties(
+                                                DrawActions.LINE_DRAW,
+                                                this.drawerProperties.operationAction(),
+                                                this.drawerProperties.constraintAngles());
+                                shapeDrawers.stream()
+                                        .filter(
+                                                shapeDrawer ->
+                                                        shapeDrawer.getDrawAction()
+                                                                == DrawActions.LINE_DRAW)
+                                        .forEach(
+                                                shapeDrawer ->
+                                                        shapeDrawer.getButton().setSelected(true));
+                                shapeDrawers.stream()
+                                        .filter(
+                                                shapeDrawer ->
+                                                        shapeDrawer.getDrawAction()
+                                                                == DrawActions.CURVE_DRAW)
+                                        .forEach(
+                                                shapeDrawer ->
+                                                        shapeDrawer.getButton().setSelected(false));
+                            }
+                            case "javafx.scene.shape.QuadCurve" -> {
+                                var shape =
+                                        this.curve.use(
+                                                cadCanvas.selectedShape, closestPoint.circle());
+                                cadCanvas.recreatePoint(closestPoint, shape);
+                                this.drawerProperties =
+                                        new DrawerProperties(
+                                                DrawActions.CURVE_DRAW,
+                                                this.drawerProperties.operationAction(),
+                                                this.drawerProperties.constraintAngles());
+                                shapeDrawers.stream()
+                                        .filter(
+                                                shapeDrawer ->
+                                                        shapeDrawer.getDrawAction()
+                                                                == DrawActions.LINE_DRAW)
+                                        .forEach(
+                                                shapeDrawer ->
+                                                        shapeDrawer.getButton().setSelected(false));
+                                shapeDrawers.stream()
+                                        .filter(
+                                                shapeDrawer ->
+                                                        shapeDrawer.getDrawAction()
+                                                                == DrawActions.CURVE_DRAW)
+                                        .forEach(
+                                                shapeDrawer ->
+                                                        shapeDrawer.getButton().setSelected(true));
+                            }
+                        }
+                        cadCanvas.selectedShape = null;
+                        this.cadCanvas.setProperties(drawerProperties);
+                        shapeDrawers.stream()
+                                .filter(
+                                        shapeDrawer ->
+                                                shapeDrawer.getDrawAction() == DrawActions.SELECT)
+                                .forEach(shapeDrawer -> shapeDrawer.getButton().setSelected(false));
+                    } else {
+                        cadCanvas.hoverShape = null;
+                        cadCanvas.selectShape(event);
+                        this.cadProperties.addConfiguration(ShapeType.CANVAS, null);
+                    }
                 } else {
-                    cadCanvas.hoverShape = null;
-                    cadCanvas.selectShape(event);
-                    this.cadProperties.addConfiguration(ShapeType.CANVAS, null);
-                }
-            } else {
-                this.cadCanvas.selectShape((MouseEvent) shapeDrawerEvent.getSource());
-                if (this.cadCanvas.selectedShape != null) {
-                    this.cadProperties.addConfiguration(ShapeType.LINE, cadCanvas.selectedShape);
-                } else {
-                    this.cadProperties.addConfiguration(ShapeType.CANVAS, null);
+                    this.cadCanvas.selectShape((MouseEvent) shapeDrawerEvent.getSource());
+                    if (this.cadCanvas.selectedShape != null) {
+                        switch (cadCanvas.selectedShape.getClass().getCanonicalName()) {
+                            case "javafx.scene.shape.Line" -> {
+                                this.cadProperties.addConfiguration(
+                                        ShapeType.LINE, cadCanvas.selectedShape);
+                            }
+                            case "javafx.scene.shape.QuadCurve" -> {
+                                this.cadProperties.addConfiguration(
+                                        ShapeType.CURVE, cadCanvas.selectedShape);
+                            }
+                        }
+                    } else {
+                        this.cadProperties.addConfiguration(ShapeType.CANVAS, null);
+                    }
                 }
             }
         }
@@ -189,10 +250,19 @@ public class CadProject
                         operationChangedEvent.getOperationAction(),
                         this.drawerProperties.constraintAngles());
         this.cadCanvas.setProperties(drawerProperties);
-        ShapeDrawer shape = select;
-        if (this.cadCanvas.selectedShape != null
-                && this.cadCanvas.selectedShape.getClass() == javafx.scene.shape.Line.class) {
-            shape = line;
+        if (this.cadCanvas.selectedShape == null) {
+            this.cadCanvas.triggerOperation(select);
+            return;
+        }
+        ShapeDrawer shape;
+        switch (cadCanvas.selectedShape.getClass().getCanonicalName()) {
+            case "javafx.scene.shape.Line" -> {
+                shape = line;
+            }
+            case "javafx.scene.shape.QuadCurve" -> {
+                shape = curve;
+            }
+            default -> shape = select;
         }
         this.cadCanvas.triggerOperation(shape);
     }
@@ -213,6 +283,14 @@ public class CadProject
                 var lineProperty = (LineProperty) canvasProperty.getProperty();
                 var line = (javafx.scene.shape.Line) this.cadCanvas.selectedShape;
                 this.line.update(line, lineProperty);
+            }
+            case CURVE -> {
+                if (this.cadCanvas.selectedShape == null) {
+                    return;
+                }
+                var curveProperty = (CurveProperty) canvasProperty.getProperty();
+                var curve = (javafx.scene.shape.QuadCurve) this.cadCanvas.selectedShape;
+                this.curve.update(curve, curveProperty);
             }
         }
     }
@@ -266,6 +344,7 @@ public class CadProject
     private ShapeDrawer getShapeDrawer() {
         return switch (this.drawerProperties.drawAction()) {
             case LINE_DRAW -> this.line;
+            case CURVE_DRAW -> this.curve;
             default -> this.select;
         };
     }
