@@ -3,6 +3,7 @@ package de.sitmcella.simplecad.drawer;
 import de.sitmcella.simplecad.CadCanvas;
 import java.util.Collections;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.shape.Circle;
 import org.kordamp.ikonli.javafx.FontIcon;
 import org.kordamp.ikonli.materialdesign2.MaterialDesignA;
 
@@ -29,5 +30,10 @@ public class Select extends Shape implements ShapeDrawer, PropertiesListener {
 
     public Shapes copy(javafx.scene.shape.Shape selectedShape) {
         return new Shapes(Collections.emptyList(), selectedShape);
+    }
+
+    public javafx.scene.shape.Shape use(
+            javafx.scene.shape.Shape selectedShape, Circle closestPoint) {
+        return null;
     }
 }
