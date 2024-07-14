@@ -106,7 +106,7 @@ public class CadProject
                         add(point);
                     }
                 };
-        this.canvasStorage = new CanvasStorage(cadCanvas, line);
+        this.canvasStorage = new CanvasStorage(cadCanvas, line, curve);
     }
 
     public void configureEventListeners(VBox root) {

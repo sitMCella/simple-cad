@@ -12,4 +12,8 @@ public enum ShapeType {
             default -> CANVAS;
         };
     }
+
+    public static ShapeType from(String shapeName) {
+        return ShapeType.valueOf(shapeName);
+    }
 }
