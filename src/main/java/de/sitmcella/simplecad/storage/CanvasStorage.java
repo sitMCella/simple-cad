@@ -1,7 +1,8 @@
 package de.sitmcella.simplecad.storage;
 
+import static de.sitmcella.simplecad.property.ShapeType.LINE;
+
 import de.sitmcella.simplecad.CadCanvas;
-import de.sitmcella.simplecad.drawer.Curve;
 import de.sitmcella.simplecad.property.ShapeType;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -17,8 +18,6 @@ import javafx.scene.shape.Shape;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import static de.sitmcella.simplecad.property.ShapeType.LINE;
-
 public class CanvasStorage {
 
     private static final Logger logger = LogManager.getLogger();
@@ -31,7 +30,10 @@ public class CanvasStorage {
 
     private final de.sitmcella.simplecad.drawer.Curve curve;
 
-    public CanvasStorage(final CadCanvas cadCanvas, final de.sitmcella.simplecad.drawer.Line line, de.sitmcella.simplecad.drawer.Curve curve) {
+    public CanvasStorage(
+            final CadCanvas cadCanvas,
+            final de.sitmcella.simplecad.drawer.Line line,
+            de.sitmcella.simplecad.drawer.Curve curve) {
         this.cadCanvas = cadCanvas;
         this.line = line;
         this.curve = curve;
@@ -60,11 +62,11 @@ public class CanvasStorage {
                                         var line = (Line) shape;
                                         String[] lineData =
                                                 new String[] {
-                                                        LINE.toString(),
-                                                        String.valueOf(line.getStartX()),
-                                                        String.valueOf(line.getStartY()),
-                                                        String.valueOf(line.getEndX()),
-                                                        String.valueOf(line.getEndY())
+                                                    LINE.toString(),
+                                                    String.valueOf(line.getStartX()),
+                                                    String.valueOf(line.getStartY()),
+                                                    String.valueOf(line.getEndX()),
+                                                    String.valueOf(line.getEndY())
                                                 };
                                         printWriter.println(convertToCSV(lineData));
                                     }
@@ -72,13 +74,13 @@ public class CanvasStorage {
                                         var curve = (QuadCurve) shape;
                                         String[] curveData =
                                                 new String[] {
-                                                        ShapeType.CURVE.toString(),
-                                                        String.valueOf(curve.getStartX()),
-                                                        String.valueOf(curve.getStartY()),
-                                                        String.valueOf(curve.getControlX()),
-                                                        String.valueOf(curve.getControlY()),
-                                                        String.valueOf(curve.getEndX()),
-                                                        String.valueOf(curve.getEndY())
+                                                    ShapeType.CURVE.toString(),
+                                                    String.valueOf(curve.getStartX()),
+                                                    String.valueOf(curve.getStartY()),
+                                                    String.valueOf(curve.getControlX()),
+                                                    String.valueOf(curve.getControlY()),
+                                                    String.valueOf(curve.getEndX()),
+                                                    String.valueOf(curve.getEndY())
                                                 };
                                         printWriter.println(convertToCSV(curveData));
                                     }
@@ -129,7 +131,9 @@ public class CanvasStorage {
                             double controlY = Double.parseDouble(data.get(4));
                             double endX = Double.parseDouble(data.get(5));
                             double endY = Double.parseDouble(data.get(6));
-                            var shapes = this.curve.createCurveShape(startX, startY, controlX, controlY, endX, endY);
+                            var shapes =
+                                    this.curve.createCurveShape(
+                                            startX, startY, controlX, controlY, endX, endY);
                             this.cadCanvas.addShapes(shapes);
                         }
                     }
