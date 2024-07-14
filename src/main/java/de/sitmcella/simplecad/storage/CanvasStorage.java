@@ -1,5 +1,7 @@
 package de.sitmcella.simplecad.storage;
 
+import static de.sitmcella.simplecad.property.ShapeType.LINE;
+
 import de.sitmcella.simplecad.CadCanvas;
 import de.sitmcella.simplecad.property.ShapeType;
 import java.io.File;
@@ -11,6 +13,8 @@ import java.util.Scanner;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javafx.scene.shape.Line;
+import javafx.scene.shape.QuadCurve;
+import javafx.scene.shape.Shape;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -24,9 +28,15 @@ public class CanvasStorage {
 
     private final de.sitmcella.simplecad.drawer.Line line;
 
-    public CanvasStorage(final CadCanvas cadCanvas, final de.sitmcella.simplecad.drawer.Line line) {
+    private final de.sitmcella.simplecad.drawer.Curve curve;
+
+    public CanvasStorage(
+            final CadCanvas cadCanvas,
+            final de.sitmcella.simplecad.drawer.Line line,
+            de.sitmcella.simplecad.drawer.Curve curve) {
         this.cadCanvas = cadCanvas;
         this.line = line;
+        this.curve = curve;
     }
 
     public void save() {
@@ -46,16 +56,35 @@ public class CanvasStorage {
             cadCanvas.getShapes().stream()
                     .forEach(
                             shape -> {
-                                var line = (Line) shape;
-                                String[] lineData =
-                                        new String[] {
-                                            ShapeType.LINE.toString(),
-                                            String.valueOf(line.getStartX()),
-                                            String.valueOf(line.getStartY()),
-                                            String.valueOf(line.getEndX()),
-                                            String.valueOf(line.getEndY())
-                                        };
-                                printWriter.println(convertToCSV(lineData));
+                                var shapeType = getShapeTypeFromShape(shape);
+                                switch (shapeType) {
+                                    case LINE -> {
+                                        var line = (Line) shape;
+                                        String[] lineData =
+                                                new String[] {
+                                                    LINE.toString(),
+                                                    String.valueOf(line.getStartX()),
+                                                    String.valueOf(line.getStartY()),
+                                                    String.valueOf(line.getEndX()),
+                                                    String.valueOf(line.getEndY())
+                                                };
+                                        printWriter.println(convertToCSV(lineData));
+                                    }
+                                    case CURVE -> {
+                                        var curve = (QuadCurve) shape;
+                                        String[] curveData =
+                                                new String[] {
+                                                    ShapeType.CURVE.toString(),
+                                                    String.valueOf(curve.getStartX()),
+                                                    String.valueOf(curve.getStartY()),
+                                                    String.valueOf(curve.getControlX()),
+                                                    String.valueOf(curve.getControlY()),
+                                                    String.valueOf(curve.getEndX()),
+                                                    String.valueOf(curve.getEndY())
+                                                };
+                                        printWriter.println(convertToCSV(curveData));
+                                    }
+                                }
                             });
             file.delete();
             newFile.renameTo(file);
@@ -83,18 +112,40 @@ public class CanvasStorage {
             }
             while (scanner.hasNextLine()) {
                 var data = getRecordFromLine(scanner.nextLine());
-                if (data.size() == 5 && data.get(0).equals(ShapeType.LINE.toString())) {
-                    double startX = Double.parseDouble(data.get(1));
-                    double startY = Double.parseDouble(data.get(2));
-                    double endX = Double.parseDouble(data.get(3));
-                    double endY = Double.parseDouble(data.get(4));
-                    var shapes = this.line.createLineShape(startX, startY, endX, endY);
-                    this.cadCanvas.addShapes(shapes);
+                switch (ShapeType.from(data.get(0))) {
+                    case LINE -> {
+                        if (data.size() == 5) {
+                            double startX = Double.parseDouble(data.get(1));
+                            double startY = Double.parseDouble(data.get(2));
+                            double endX = Double.parseDouble(data.get(3));
+                            double endY = Double.parseDouble(data.get(4));
+                            var shapes = this.line.createLineShape(startX, startY, endX, endY);
+                            this.cadCanvas.addShapes(shapes);
+                        }
+                    }
+                    case CURVE -> {
+                        if (data.size() == 7) {
+                            double startX = Double.parseDouble(data.get(1));
+                            double startY = Double.parseDouble(data.get(2));
+                            double controlX = Double.parseDouble(data.get(3));
+                            double controlY = Double.parseDouble(data.get(4));
+                            double endX = Double.parseDouble(data.get(5));
+                            double endY = Double.parseDouble(data.get(6));
+                            var shapes =
+                                    this.curve.createCurveShape(
+                                            startX, startY, controlX, controlY, endX, endY);
+                            this.cadCanvas.addShapes(shapes);
+                        }
+                    }
                 }
             }
         } catch (FileNotFoundException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private ShapeType getShapeTypeFromShape(Shape shape) {
+        return ShapeType.fromClass(shape);
     }
 
     private String convertToCSV(String[] data) {
