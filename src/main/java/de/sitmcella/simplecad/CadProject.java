@@ -121,8 +121,8 @@ public class CadProject
     public void menuItemSelected(MenuItemEvent menuItemEvent) {
         switch (menuItemEvent.getMenuItemValue()) {
             case FILE_CREATE -> createCadProject();
-            case FILE_OPEN -> canvasStorage.open();
-            case FILE_SAVE -> canvasStorage.save();
+            case FILE_OPEN -> canvasStorage.open(menuItemEvent.getParameter());
+            case FILE_SAVE -> canvasStorage.save(menuItemEvent.getParameter());
             case FILE_CLOSE -> Platform.exit();
             default -> logger.info("Unknown MenuItemEvent");
         }

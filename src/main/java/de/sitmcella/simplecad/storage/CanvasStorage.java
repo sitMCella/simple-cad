@@ -6,6 +6,7 @@ import de.sitmcella.simplecad.CadCanvas;
 import de.sitmcella.simplecad.property.ShapeType;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
@@ -39,11 +40,14 @@ public class CanvasStorage {
         this.curve = curve;
     }
 
-    public void save() {
-        File file = new File("canvas.csv");
-        String tmpdir = System.getProperty("java.io.tmpdir");
-        File tempFolder = new File(tmpdir);
-        File newFile = new File(tempFolder, "canvas.csv");
+    public void save(String filePath) {
+        File file = new File(filePath);
+        File newFile = null;
+        try {
+            newFile = File.createTempFile("cad", "csv");
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
         try (PrintWriter printWriter = new PrintWriter(newFile)) {
             var canvasSize = this.cadCanvas.getCanvasSize();
             String[] canvasData =
@@ -88,13 +92,13 @@ public class CanvasStorage {
                             });
             file.delete();
             newFile.renameTo(file);
-        } catch (FileNotFoundException e) {
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
-    public void open() {
-        File file = new File("canvas.csv");
+    public void open(String filePath) {
+        File file = new File(filePath);
         try (Scanner scanner = new Scanner(file)) {
             if (!scanner.hasNextLine()) {
                 logger.warn("The file is empty.");
