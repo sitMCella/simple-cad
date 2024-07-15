@@ -1,12 +1,13 @@
 package de.sitmcella.simplecad.drawer;
 
 import de.sitmcella.simplecad.CadCanvas;
+import de.sitmcella.simplecad.CadShape;
+import de.sitmcella.simplecad.Category;
 import de.sitmcella.simplecad.property.CurveProperty;
 import java.util.ArrayList;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
-import javafx.scene.shape.QuadCurve;
 import org.kordamp.ikonli.javafx.FontIcon;
 import org.kordamp.ikonli.materialdesign2.MaterialDesignV;
 
@@ -47,9 +48,9 @@ public class Curve extends Shape implements ShapeDrawer {
                                 startPoint.getCenterY());
                 this.curve = curve;
                 this.stage = Stage.CONTROL;
-                var shapes = new ArrayList<javafx.scene.shape.Shape>();
-                shapes.add(startPoint);
-                shapes.add(curve);
+                var shapes = new ArrayList<CadShape>();
+                shapes.add(new CadShape(startPoint, new Category("None")));
+                shapes.add(new CadShape(curve, new Category("None")));
                 return new Shapes(shapes, curve);
             }
             case CONTROL -> {
@@ -63,7 +64,7 @@ public class Curve extends Shape implements ShapeDrawer {
                 Circle controlPoint = new Circle(curve.getControlX(), curve.getControlY(), 3.0d);
                 controlPoint.setOnMouseExited(this.cadCanvas::handlePointMouseExited);
                 this.stage = Stage.END;
-                var shapes = new ArrayList<javafx.scene.shape.Shape>() {};
+                var shapes = new ArrayList<CadShape>() {};
                 return new Shapes(shapes, curve);
             }
             case END -> {
@@ -78,9 +79,9 @@ public class Curve extends Shape implements ShapeDrawer {
                 endPoint.setOnMouseExited(this.cadCanvas::handlePointMouseExited);
                 this.stage = Stage.START;
                 var shapes =
-                        new ArrayList<javafx.scene.shape.Shape>() {
+                        new ArrayList<CadShape>() {
                             {
-                                add(endPoint);
+                                add(new CadShape(endPoint, new Category("None")));
                             }
                         };
                 return new Shapes(shapes, curve);
@@ -150,9 +151,9 @@ public class Curve extends Shape implements ShapeDrawer {
         }
     }
 
-    public Shapes copy(javafx.scene.shape.Shape selectedShape) {
+    public Shapes copy(CadShape cadShape) {
         this.stage = Stage.END;
-        var originalCurve = (javafx.scene.shape.QuadCurve) selectedShape;
+        var originalCurve = (javafx.scene.shape.QuadCurve) cadShape.shape();
         var startX = originalCurve.getStartX() - 20;
         var startY = originalCurve.getStartY() - 20;
         var controlX = originalCurve.getControlX() - 20;
@@ -174,14 +175,15 @@ public class Curve extends Shape implements ShapeDrawer {
         startPoint.setOnMouseExited(this.cadCanvas::handlePointMouseExited);
         Circle endPoint = new Circle(endX, endY, 3.0d);
         endPoint.setOnMouseExited(this.cadCanvas::handlePointMouseExited);
-        var shapes = new ArrayList<javafx.scene.shape.Shape>();
-        shapes.add(startPoint);
-        shapes.add(curve);
-        shapes.add(endPoint);
+        var shapes = new ArrayList<CadShape>();
+        shapes.add(new CadShape(startPoint, new Category("None")));
+        shapes.add(new CadShape(curve, new Category("None")));
+        shapes.add(new CadShape(endPoint, new Category("None")));
         return new Shapes(shapes, curve);
     }
 
-    public void update(QuadCurve curve, CurveProperty curveProperty) {
+    public void update(CadShape cadShape, CurveProperty curveProperty) {
+        var curve = (javafx.scene.shape.QuadCurve) cadShape.shape();
         var curveStartX = curve.getStartX();
         var curveStartY = curve.getStartY();
         var curveEndX = curve.getEndX();
@@ -192,7 +194,7 @@ public class Curve extends Shape implements ShapeDrawer {
         curve.setControlY(curveProperty.controlY());
         curve.setEndX(curveProperty.endX());
         curve.setEndY(curveProperty.endY());
-        this.cadCanvas.selectedShape = curve;
+        this.cadCanvas.cadShape = new CadShape(curve, cadShape.category());
         var initialStartPoint = this.cadCanvas.getPoint(curve, curveStartX, curveStartY);
         var startCircle = initialStartPoint.circle();
         this.cadCanvas.removePoint(initialStartPoint);

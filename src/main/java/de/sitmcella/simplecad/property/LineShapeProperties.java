@@ -1,5 +1,6 @@
 package de.sitmcella.simplecad.property;
 
+import de.sitmcella.simplecad.CadShape;
 import java.util.List;
 import javafx.scene.control.Label;
 import javafx.scene.control.Tab;
@@ -29,7 +30,8 @@ public class LineShapeProperties {
         this.lineProperty = null;
     }
 
-    public void showLineShapeProperties(Line line) {
+    public void showLineShapeProperties(CadShape cadShape) {
+        var line = (Line) cadShape.shape();
         this.lineProperty =
                 new LineProperty(
                         line.getStartX(), line.getStartY(), line.getEndX(), line.getEndY());

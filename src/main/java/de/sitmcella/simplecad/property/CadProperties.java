@@ -1,11 +1,9 @@
 package de.sitmcella.simplecad.property;
 
+import de.sitmcella.simplecad.CadShape;
 import java.util.ArrayList;
 import java.util.List;
 import javafx.scene.control.Tab;
-import javafx.scene.shape.Line;
-import javafx.scene.shape.QuadCurve;
-import javafx.scene.shape.Shape;
 
 public class CadProperties {
 
@@ -39,16 +37,16 @@ public class CadProperties {
         this.canvasPropertyListeners.add(canvasPropertyListener);
     }
 
-    public void addConfiguration(ShapeType shapeType, Shape shape) {
+    public void addConfiguration(ShapeType shapeType, CadShape cadShape) {
         switch (shapeType) {
             case CANVAS -> {
                 canvasProperties.showCanvasProperties();
             }
             case LINE -> {
-                lineShapeProperties.showLineShapeProperties((Line) shape);
+                lineShapeProperties.showLineShapeProperties(cadShape);
             }
             case CURVE -> {
-                curveShapeProperties.showCurveShapeProperties((QuadCurve) shape);
+                curveShapeProperties.showCurveShapeProperties(cadShape);
             }
         }
     }

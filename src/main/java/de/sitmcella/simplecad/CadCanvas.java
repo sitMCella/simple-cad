@@ -17,7 +17,7 @@ public class CadCanvas {
 
     private final Pane pane;
 
-    private final List<Shape> shapes;
+    private final List<CadShape> shapes;
 
     private DrawerProperties drawerProperties;
 
@@ -25,7 +25,7 @@ public class CadCanvas {
 
     public Shape hoverShape;
 
-    public Shape selectedShape;
+    public CadShape cadShape;
 
     public CadCanvas(final Pane pane, DrawerProperties drawerProperties) {
         this.pane = pane;
@@ -33,14 +33,14 @@ public class CadCanvas {
         this.drawerProperties = drawerProperties;
         this.canvasPoints = new ArrayList<>();
         this.hoverShape = null;
-        this.selectedShape = null;
+        this.cadShape = null;
     }
 
     public void addShapes(Shapes shapes) {
         for (var shape : shapes.shapes()) {
-            this.pane.getChildren().add(shape);
-            if (shape != shapes.mainShape()) {
-                addPointCoordinates((Circle) shape, shapes.mainShape());
+            this.pane.getChildren().add(shape.shape());
+            if (shape.shape() != shapes.mainShape()) {
+                addPointCoordinates((Circle) shape.shape(), shapes.mainShape());
             } else {
                 this.shapes.add(shape);
             }
@@ -59,7 +59,7 @@ public class CadCanvas {
                         .filter(
                                 point ->
                                         isSelected
-                                                ? (point.mainShape() == this.selectedShape
+                                                ? (point.mainShape() == this.cadShape.shape()
                                                         && Math.abs(point.x() - event.getX()) < 5
                                                         && Math.abs(point.y() - event.getY()) < 5)
                                                 : (Math.abs(point.x() - event.getX()) < 5
@@ -74,7 +74,7 @@ public class CadCanvas {
 
     public void handleShapeMouseEntered(MouseEvent mouseEvent) {
         if (drawerProperties.drawAction() == DrawActions.SELECT) {
-            if (this.selectedShape == null) {
+            if (this.cadShape == null) {
                 ((Shape) mouseEvent.getSource()).setStrokeWidth(3.0d);
                 ((Shape) mouseEvent.getSource()).setStroke(Color.DARKBLUE);
             }
@@ -84,7 +84,7 @@ public class CadCanvas {
 
     public void handleShapeMouseExited(MouseEvent mouseEvent) {
         if (drawerProperties.drawAction() == DrawActions.SELECT) {
-            if (this.selectedShape == null) {
+            if (this.cadShape == null) {
                 ((Shape) mouseEvent.getSource()).setStrokeWidth(1.0d);
                 ((Shape) mouseEvent.getSource()).setStroke(Color.BLACK);
             }
@@ -92,7 +92,7 @@ public class CadCanvas {
         }
     }
 
-    public List<Shape> getShapes() {
+    public List<CadShape> getShapes() {
         return this.shapes;
     }
 
@@ -102,21 +102,21 @@ public class CadCanvas {
 
     public void selectShape(MouseEvent event) {
         if (this.hoverShape == null) {
-            this.selectedShape = null;
+            this.cadShape = null;
             shapes.stream()
                     .forEach(
                             shape -> {
-                                shape.setStrokeWidth(1.0d);
-                                shape.setStroke(Color.BLACK);
+                                shape.shape().setStrokeWidth(1.0d);
+                                shape.shape().setStroke(Color.BLACK);
                             });
         } else {
             shapes.stream()
-                    .filter(shape -> (this.hoverShape == shape))
+                    .filter(shape -> (this.hoverShape == shape.shape()))
                     .findFirst()
                     .ifPresent(
                             shape -> {
-                                this.selectedShape = shape;
-                                shape.setStroke(Color.DARKBLUE);
+                                this.cadShape = shape;
+                                shape.shape().setStroke(Color.DARKBLUE);
                             });
         }
     }
@@ -124,25 +124,25 @@ public class CadCanvas {
     public void triggerOperation(ShapeDrawer shape) {
         switch (this.drawerProperties.operationAction()) {
             case CUT -> {
-                if (this.selectedShape == null) {
+                if (this.cadShape == null) {
                     return;
                 }
-                this.shapes.remove(this.selectedShape);
-                this.pane.getChildren().remove(this.selectedShape);
+                this.shapes.remove(this.cadShape);
+                this.pane.getChildren().remove(this.cadShape.shape());
                 var pointsToDelete =
                         this.canvasPoints.stream()
                                 .filter(
                                         canvasPoint ->
-                                                canvasPoint.mainShape() == this.selectedShape)
+                                                canvasPoint.mainShape() == this.cadShape.shape())
                                 .toList();
                 removePoints(pointsToDelete);
-                this.selectedShape = null;
+                this.cadShape = null;
             }
             case DUPLICATE -> {
-                if (this.selectedShape == null) {
+                if (this.cadShape == null) {
                     return;
                 }
-                var shapes = shape.copy(this.selectedShape);
+                var shapes = shape.copy(this.cadShape);
                 addShapes(shapes);
             }
             case POINT -> {

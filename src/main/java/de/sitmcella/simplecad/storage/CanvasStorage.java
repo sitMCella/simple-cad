@@ -60,10 +60,10 @@ public class CanvasStorage {
             cadCanvas.getShapes().stream()
                     .forEach(
                             shape -> {
-                                var shapeType = getShapeTypeFromShape(shape);
+                                var shapeType = getShapeTypeFromShape(shape.shape());
                                 switch (shapeType) {
                                     case LINE -> {
-                                        var line = (Line) shape;
+                                        var line = (Line) shape.shape();
                                         String[] lineData =
                                                 new String[] {
                                                     LINE.toString(),
@@ -75,7 +75,7 @@ public class CanvasStorage {
                                         printWriter.println(convertToCSV(lineData));
                                     }
                                     case CURVE -> {
-                                        var curve = (QuadCurve) shape;
+                                        var curve = (QuadCurve) shape.shape();
                                         String[] curveData =
                                                 new String[] {
                                                     ShapeType.CURVE.toString(),

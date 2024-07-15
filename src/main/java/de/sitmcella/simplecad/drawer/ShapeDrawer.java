@@ -1,5 +1,6 @@
 package de.sitmcella.simplecad.drawer;
 
+import de.sitmcella.simplecad.CadShape;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.shape.Circle;
 
@@ -9,7 +10,7 @@ public interface ShapeDrawer {
 
     void handleMouseMove(MouseEvent event);
 
-    Shapes copy(javafx.scene.shape.Shape selectedShape);
+    Shapes copy(CadShape cadShape);
 
     javafx.scene.shape.Shape use(javafx.scene.shape.Shape selectedShape, Circle closestPoint);
 }

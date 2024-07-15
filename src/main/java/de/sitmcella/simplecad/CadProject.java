@@ -148,7 +148,7 @@ public class CadProject
     public void shapeDrawer(ShapeDrawerEvent shapeDrawerEvent) {
         switch (this.drawerProperties.drawAction()) {
             case SELECT -> {
-                if (cadCanvas.selectedShape != null) {
+                if (cadCanvas.cadShape != null) {
                     var event = (MouseEvent) shapeDrawerEvent.getSource();
                     var closestPoint = this.cadCanvas.selectClosePoint(event, true);
                     if (closestPoint != null) {
@@ -157,7 +157,7 @@ public class CadProject
                             case LINE -> moveShapePoint(DrawActions.LINE_DRAW, closestPoint);
                             case CURVE -> moveShapePoint(DrawActions.CURVE_DRAW, closestPoint);
                         }
-                        cadCanvas.selectedShape = null;
+                        cadCanvas.cadShape = null;
                         this.cadCanvas.setProperties(drawerProperties);
                     } else {
                         cadCanvas.hoverShape = null;
@@ -166,9 +166,9 @@ public class CadProject
                     }
                 } else {
                     this.cadCanvas.selectShape((MouseEvent) shapeDrawerEvent.getSource());
-                    if (this.cadCanvas.selectedShape != null) {
+                    if (this.cadCanvas.cadShape != null) {
                         ShapeType shapeType = getShapeTypeFromSelectedShape();
-                        this.cadProperties.addConfiguration(shapeType, cadCanvas.selectedShape);
+                        this.cadProperties.addConfiguration(shapeType, cadCanvas.cadShape);
                     } else {
                         this.cadProperties.addConfiguration(ShapeType.CANVAS, null);
                     }
@@ -178,7 +178,8 @@ public class CadProject
     }
 
     private void moveShapePoint(DrawActions drawAction, CanvasPoint closestPoint) {
-        var shape = getShapeDrawer(drawAction).use(cadCanvas.selectedShape, closestPoint.circle());
+        var shape =
+                getShapeDrawer(drawAction).use(cadCanvas.cadShape.shape(), closestPoint.circle());
         cadCanvas.recreatePoint(closestPoint, shape);
         this.drawerProperties =
                 new DrawerProperties(
@@ -201,7 +202,7 @@ public class CadProject
                         operationChangedEvent.getOperationAction(),
                         this.drawerProperties.constraintAngles());
         this.cadCanvas.setProperties(drawerProperties);
-        if (this.cadCanvas.selectedShape == null) {
+        if (this.cadCanvas.cadShape == null) {
             this.cadCanvas.triggerOperation(select);
             return;
         }
@@ -219,26 +220,24 @@ public class CadProject
                         canvasSizeProperty.canvasWidth(), canvasSizeProperty.canvasHeight());
             }
             case LINE -> {
-                if (this.cadCanvas.selectedShape == null) {
+                if (this.cadCanvas.cadShape == null) {
                     return;
                 }
                 var lineProperty = (LineProperty) canvasProperty.getProperty();
-                var line = (javafx.scene.shape.Line) this.cadCanvas.selectedShape;
-                this.line.update(line, lineProperty);
+                this.line.update(this.cadCanvas.cadShape, lineProperty);
             }
             case CURVE -> {
-                if (this.cadCanvas.selectedShape == null) {
+                if (this.cadCanvas.cadShape == null) {
                     return;
                 }
                 var curveProperty = (CurveProperty) canvasProperty.getProperty();
-                var curve = (javafx.scene.shape.QuadCurve) this.cadCanvas.selectedShape;
-                this.curve.update(curve, curveProperty);
+                this.curve.update(this.cadCanvas.cadShape, curveProperty);
             }
         }
     }
 
     private ShapeDrawer getShapeDrawerFromSelectedShape() {
-        return switch (ShapeType.fromClass(cadCanvas.selectedShape)) {
+        return switch (ShapeType.fromClass(cadCanvas.cadShape.shape())) {
             case LINE -> line;
             case CURVE -> curve;
             default -> select;
@@ -246,7 +245,7 @@ public class CadProject
     }
 
     private ShapeType getShapeTypeFromSelectedShape() {
-        return ShapeType.fromClass(cadCanvas.selectedShape);
+        return ShapeType.fromClass(cadCanvas.cadShape.shape());
     }
 
     public List<Shape> getShapeDrawers() {

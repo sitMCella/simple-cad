@@ -1,5 +1,6 @@
 package de.sitmcella.simplecad.property;
 
+import de.sitmcella.simplecad.CadShape;
 import java.util.List;
 import javafx.scene.control.Label;
 import javafx.scene.control.Tab;
@@ -29,7 +30,8 @@ public class CurveShapeProperties {
         this.curveProperty = null;
     }
 
-    public void showCurveShapeProperties(QuadCurve curve) {
+    public void showCurveShapeProperties(CadShape cadShape) {
+        var curve = (QuadCurve) cadShape.shape();
         this.curveProperty =
                 new CurveProperty(
                         curve.getStartX(),

@@ -1,6 +1,7 @@
 package de.sitmcella.simplecad.drawer;
 
 import de.sitmcella.simplecad.CadCanvas;
+import de.sitmcella.simplecad.CadShape;
 import java.util.Collections;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.shape.Circle;
@@ -28,8 +29,8 @@ public class Select extends Shape implements ShapeDrawer, PropertiesListener {
 
     public void handleMouseMove(MouseEvent event) {}
 
-    public Shapes copy(javafx.scene.shape.Shape selectedShape) {
-        return new Shapes(Collections.emptyList(), selectedShape);
+    public Shapes copy(CadShape cadShape) {
+        return new Shapes(Collections.emptyList(), cadShape.shape());
     }
 
     public javafx.scene.shape.Shape use(
