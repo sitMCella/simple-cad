@@ -38,13 +38,14 @@ public class LineShapeProperties {
 
     public void showLineShapeProperties(CadShape cadShape) {
         var line = (Line) cadShape.shape();
+        var categoryValue = cadShape.category() != null ? cadShape.category().value() : null;
         this.lineProperty =
                 new LineProperty(
                         line.getStartX(),
                         line.getStartY(),
                         line.getEndX(),
                         line.getEndY(),
-                        cadShape.category().value());
+                        categoryValue);
         Label title = new Label("Line");
         title.setFont(Font.font("Verdana", FontWeight.BOLD, 12));
         TextFieldSection startXProperty =
@@ -139,7 +140,7 @@ public class LineShapeProperties {
 
         List<String> categoryValues = categories.stream().map(Category::value).toList();
         DropDownSection existentCategories = propertiesUtility.addDropdownSection(categoryValues);
-        existentCategories.getComboBox().setValue(cadShape.category().value());
+        existentCategories.getComboBox().setValue(categoryValue);
 
         existentCategories
                 .getComboBox()

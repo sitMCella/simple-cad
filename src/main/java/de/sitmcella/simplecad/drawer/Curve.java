@@ -54,8 +54,8 @@ public class Curve extends Shape implements ShapeDrawer {
                 this.curve = curve;
                 this.stage = Stage.CONTROL;
                 var shapes = new ArrayList<CadShape>();
-                shapes.add(new CadShape(startPoint, new Category("None")));
-                shapes.add(new CadShape(curve, new Category("None")));
+                shapes.add(new CadShape(startPoint, null));
+                shapes.add(new CadShape(curve, null));
                 return new Shapes(shapes, curve);
             }
             case CONTROL -> {
@@ -86,7 +86,7 @@ public class Curve extends Shape implements ShapeDrawer {
                 var shapes =
                         new ArrayList<CadShape>() {
                             {
-                                add(new CadShape(endPoint, new Category("None")));
+                                add(new CadShape(endPoint, null));
                             }
                         };
                 return new Shapes(shapes, curve);
@@ -107,6 +107,17 @@ public class Curve extends Shape implements ShapeDrawer {
             double controlY,
             double endX,
             double endY) {
+        return create(startX, startY, controlX, controlY, endX, endY, null);
+    }
+
+    private javafx.scene.shape.QuadCurve create(
+            double startX,
+            double startY,
+            double controlX,
+            double controlY,
+            double endX,
+            double endY,
+            Category category) {
         javafx.scene.shape.QuadCurve curve = new javafx.scene.shape.QuadCurve();
         curve.setStartX(startX);
         curve.setStartY(startY);
@@ -117,7 +128,13 @@ public class Curve extends Shape implements ShapeDrawer {
         curve.setOnMouseEntered(this.cadCanvas::handleShapeMouseEntered);
         curve.setOnMouseExited(this.cadCanvas::handleShapeMouseExited);
         curve.setFill(Color.TRANSPARENT);
-        curve.setStroke(Color.BLACK);
+        if (this.cadCanvas.getSelectedCategory() == null) {
+            curve.setStroke(Color.BLACK);
+        } else if (category == null || !category.equals(this.cadCanvas.getSelectedCategory())) {
+            curve.setStroke(Color.gray(0.7));
+        } else {
+            curve.setStroke(Color.BLACK);
+        }
         curve.setStrokeWidth(1.0d);
         return curve;
     }
@@ -165,8 +182,8 @@ public class Curve extends Shape implements ShapeDrawer {
         var controlY = originalCurve.getControlY() - 20;
         var endX = originalCurve.getEndX() - 20;
         var endY = originalCurve.getEndY() - 20;
-        return createCurveShape(
-                startX, startY, controlX, controlY, endX, endY, cadShape.category().value());
+        var categoryValue = cadShape.category() != null ? cadShape.category().value() : null;
+        return createCurveShape(startX, startY, controlX, controlY, endX, endY, categoryValue);
     }
 
     public Shapes createCurveShape(
@@ -177,14 +194,18 @@ public class Curve extends Shape implements ShapeDrawer {
             double endX,
             double endY,
             String category) {
-        javafx.scene.shape.QuadCurve curve = create(startX, startY, controlX, controlY, endX, endY);
+        javafx.scene.shape.QuadCurve curve =
+                create(startX, startY, controlX, controlY, endX, endY, new Category(category));
         Circle startPoint = new Circle(startX, startY, 3.0d);
         startPoint.setOnMouseExited(this.cadCanvas::handlePointMouseExited);
         Circle endPoint = new Circle(endX, endY, 3.0d);
         endPoint.setOnMouseExited(this.cadCanvas::handlePointMouseExited);
-        var nullCategory = new Category("Null");
         var categoryEntry =
-                categoryExists(new Category(category)) ? new Category(category) : nullCategory;
+                category != null
+                                && !category.equals("None")
+                                && categoryExists(new Category(category))
+                        ? new Category(category)
+                        : null;
         var shapes = new ArrayList<CadShape>();
         shapes.add(new CadShape(startPoint, categoryEntry));
         shapes.add(new CadShape(curve, categoryEntry));
@@ -204,11 +225,11 @@ public class Curve extends Shape implements ShapeDrawer {
         curve.setControlY(curveProperty.controlY());
         curve.setEndX(curveProperty.endX());
         curve.setEndY(curveProperty.endY());
-        var nullCategory = new Category("Null");
         var categoryEntry =
-                categoryExists(new Category(curveProperty.category()))
+                curveProperty.category() != null
+                                && categoryExists(new Category(curveProperty.category()))
                         ? new Category(curveProperty.category())
-                        : nullCategory;
+                        : null;
         this.cadCanvas.cadShape = new CadShape(curve, categoryEntry);
         var initialStartPoint = this.cadCanvas.getPoint(curve, curveStartX, curveStartY);
         var startCircle = initialStartPoint.circle();
@@ -226,7 +247,17 @@ public class Curve extends Shape implements ShapeDrawer {
         this.stage = Stage.CONTROL;
         this.curve = (javafx.scene.shape.QuadCurve) selectedShape;
         this.curve.setStrokeWidth(1.0d);
-        this.curve.setStroke(Color.BLACK);
+        if (this.cadCanvas.getSelectedCategory() == null) {
+            this.curve.setStroke(Color.BLACK);
+        } else if (this.cadCanvas.getShape().category() == null
+                || !this.cadCanvas
+                        .getShape()
+                        .category()
+                        .equals(this.cadCanvas.getSelectedCategory())) {
+            this.curve.setStroke(Color.gray(0.7));
+        } else {
+            this.curve.setStroke(Color.BLACK);
+        }
         if (closestPoint.getCenterX() == curve.getStartX()
                 && closestPoint.getCenterY() == curve.getStartY()) {
             var endX = curve.getEndX();

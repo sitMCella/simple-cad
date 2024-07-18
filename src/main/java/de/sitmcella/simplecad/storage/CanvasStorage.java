@@ -84,13 +84,17 @@ public class CanvasStorage {
                     .forEach(
                             shape -> {
                                 var shapeType = getShapeTypeFromShape(shape.shape());
+                                var categoryValue =
+                                        shape.category() != null
+                                                ? shape.category().value()
+                                                : "None";
                                 switch (shapeType) {
                                     case LINE -> {
                                         var line = (Line) shape.shape();
                                         String[] lineData =
                                                 new String[] {
                                                     LINE.toString(),
-                                                    shape.category().value(),
+                                                    categoryValue,
                                                     String.valueOf(line.getStartX()),
                                                     String.valueOf(line.getStartY()),
                                                     String.valueOf(line.getEndX()),
@@ -103,7 +107,7 @@ public class CanvasStorage {
                                         String[] curveData =
                                                 new String[] {
                                                     ShapeType.CURVE.toString(),
-                                                    shape.category().value(),
+                                                    categoryValue,
                                                     String.valueOf(curve.getStartX()),
                                                     String.valueOf(curve.getStartY()),
                                                     String.valueOf(curve.getControlX()),

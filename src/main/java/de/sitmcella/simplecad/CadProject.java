@@ -33,6 +33,7 @@ import de.sitmcella.simplecad.property.ShapeType;
 import de.sitmcella.simplecad.storage.CanvasStorage;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import javafx.application.Platform;
 import javafx.scene.control.Button;
@@ -363,15 +364,7 @@ public class CadProject
         this.cadCanvas.canvasPoints.stream()
                 .forEach(
                         canvasPoint -> {
-                            var mainCadShape =
-                                    this.cadCanvas.getShapes().stream()
-                                            .filter(
-                                                    cadShape ->
-                                                            cadShape.shape()
-                                                                    .equals(
-                                                                            canvasPoint
-                                                                                    .mainShape()))
-                                            .findFirst();
+                            var mainCadShape = getMainCadShape(canvasPoint);
                             if (mainCadShape.isPresent()) {
                                 switch (ShapeType.fromClass(canvasPoint.mainShape())) {
                                     case LINE ->
@@ -387,5 +380,11 @@ public class CadProject
                                 }
                             }
                         });
+    }
+
+    private Optional<CadShape> getMainCadShape(CanvasPoint canvasPoint) {
+        return this.cadCanvas.getShapes().stream()
+                .filter(cadShape -> cadShape.shape().equals(canvasPoint.mainShape()))
+                .findFirst();
     }
 }

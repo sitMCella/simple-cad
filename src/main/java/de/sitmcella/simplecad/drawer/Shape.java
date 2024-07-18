@@ -81,7 +81,7 @@ public class Shape implements PropertiesListener {
             cadShape.shape().setStroke(Color.BLACK);
             return;
         }
-        if (!cadShape.category().equals(category)) {
+        if (cadShape.category() == null || !cadShape.category().equals(category)) {
             cadShape.shape().setStroke(Color.gray(0.7));
         } else {
             cadShape.shape().setStroke(Color.BLACK);
@@ -93,7 +93,7 @@ public class Shape implements PropertiesListener {
             canvasPoint.circle().setStroke(Color.BLACK);
             return;
         }
-        if (!mainCadShape.category().equals(category)) {
+        if (mainCadShape.category() == null || !mainCadShape.category().equals(category)) {
             canvasPoint.circle().setStroke(Color.gray(0.7));
         } else {
             canvasPoint.circle().setStroke(Color.BLACK);

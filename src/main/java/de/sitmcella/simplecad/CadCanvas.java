@@ -97,7 +97,8 @@ public class CadCanvas {
                                     .filter(c -> c.shape().equals(((Shape) mouseEvent.getSource())))
                                     .findFirst();
                     if (cadShape.isPresent()) {
-                        if (cadShape.get().category().equals(this.selectedCategory)) {
+                        if (cadShape.get().category() != null
+                                && cadShape.get().category().equals(this.selectedCategory)) {
                             ((Shape) mouseEvent.getSource()).setStroke(Color.BLACK);
                         } else {
                             ((Shape) mouseEvent.getSource()).setStroke(Color.gray(0.7));
@@ -126,7 +127,8 @@ public class CadCanvas {
             }
             this.cadShape.shape().setStrokeWidth(1.0d);
             if (this.selectedCategory != null) {
-                if (this.cadShape.category().equals(this.selectedCategory)) {
+                if (this.cadShape.category() != null
+                        && this.cadShape.category().equals(this.selectedCategory)) {
                     this.cadShape.shape().setStroke(Color.BLACK);
                 } else {
                     this.cadShape.shape().setStroke(Color.gray(0.7));
@@ -258,6 +260,14 @@ public class CadCanvas {
                         .toList();
         this.shapes.removeAll(cadShapesToReplace);
         this.shapes.add(cadShape);
+    }
+
+    public CadShape getShape() {
+        return this.cadShape;
+    }
+
+    public Category getSelectedCategory() {
+        return this.selectedCategory;
     }
 
     public void setSelectedCategory(Category selectedCategory) {

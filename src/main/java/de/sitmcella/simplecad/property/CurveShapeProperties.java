@@ -38,6 +38,7 @@ public class CurveShapeProperties {
 
     public void showCurveShapeProperties(CadShape cadShape) {
         var curve = (QuadCurve) cadShape.shape();
+        var category = cadShape.category() != null ? cadShape.category().value() : null;
         this.curveProperty =
                 new CurveProperty(
                         curve.getStartX(),
@@ -46,7 +47,7 @@ public class CurveShapeProperties {
                         curve.getControlY(),
                         curve.getEndX(),
                         curve.getEndY(),
-                        cadShape.category().value());
+                        category);
         Label title = new Label("Curve");
         title.setFont(Font.font("Verdana", FontWeight.BOLD, 12));
         TextFieldSection startXProperty =
@@ -58,6 +59,10 @@ public class CurveShapeProperties {
                             if (event.getCode() == KeyCode.ENTER) {
                                 var startX =
                                         Double.valueOf(startXProperty.getTextField().getText());
+                                var categoryValue =
+                                        cadShape.category() != null
+                                                ? cadShape.category().value()
+                                                : null;
                                 this.curveProperty =
                                         new CurveProperty(
                                                 startX,
@@ -66,7 +71,7 @@ public class CurveShapeProperties {
                                                 curve.getControlY(),
                                                 curve.getEndX(),
                                                 curve.getEndY(),
-                                                cadShape.category().value());
+                                                categoryValue);
                                 propertiesUtility.propertyChanged(
                                         canvasPropertyListeners,
                                         event,
@@ -82,6 +87,10 @@ public class CurveShapeProperties {
                             if (event.getCode() == KeyCode.ENTER) {
                                 var startY =
                                         Double.valueOf(startYProperty.getTextField().getText());
+                                var categoryValue =
+                                        cadShape.category() != null
+                                                ? cadShape.category().value()
+                                                : null;
                                 this.curveProperty =
                                         new CurveProperty(
                                                 curve.getStartX(),
@@ -90,7 +99,7 @@ public class CurveShapeProperties {
                                                 curve.getControlY(),
                                                 curve.getEndX(),
                                                 curve.getEndY(),
-                                                cadShape.category().value());
+                                                categoryValue);
                                 propertiesUtility.propertyChanged(
                                         canvasPropertyListeners,
                                         event,
@@ -106,6 +115,10 @@ public class CurveShapeProperties {
                             if (event.getCode() == KeyCode.ENTER) {
                                 var controlX =
                                         Double.valueOf(controlXProperty.getTextField().getText());
+                                var categoryValue =
+                                        cadShape.category() != null
+                                                ? cadShape.category().value()
+                                                : null;
                                 this.curveProperty =
                                         new CurveProperty(
                                                 curve.getStartX(),
@@ -114,7 +127,7 @@ public class CurveShapeProperties {
                                                 curve.getControlY(),
                                                 curve.getEndX(),
                                                 curve.getEndY(),
-                                                cadShape.category().value());
+                                                categoryValue);
                                 propertiesUtility.propertyChanged(
                                         canvasPropertyListeners,
                                         event,
@@ -130,6 +143,10 @@ public class CurveShapeProperties {
                             if (event.getCode() == KeyCode.ENTER) {
                                 var controlY =
                                         Double.valueOf(controlYProperty.getTextField().getText());
+                                var categoryValue =
+                                        cadShape.category() != null
+                                                ? cadShape.category().value()
+                                                : null;
                                 this.curveProperty =
                                         new CurveProperty(
                                                 curve.getStartX(),
@@ -138,7 +155,7 @@ public class CurveShapeProperties {
                                                 controlY,
                                                 curve.getEndX(),
                                                 curve.getEndY(),
-                                                cadShape.category().value());
+                                                categoryValue);
                                 propertiesUtility.propertyChanged(
                                         canvasPropertyListeners,
                                         event,
@@ -153,6 +170,10 @@ public class CurveShapeProperties {
                         event -> {
                             if (event.getCode() == KeyCode.ENTER) {
                                 var endX = Double.valueOf(endXProperty.getTextField().getText());
+                                var categoryValue =
+                                        cadShape.category() != null
+                                                ? cadShape.category().value()
+                                                : null;
                                 this.curveProperty =
                                         new CurveProperty(
                                                 curve.getStartX(),
@@ -161,7 +182,7 @@ public class CurveShapeProperties {
                                                 curve.getControlY(),
                                                 endX,
                                                 curve.getEndY(),
-                                                cadShape.category().value());
+                                                categoryValue);
                                 propertiesUtility.propertyChanged(
                                         canvasPropertyListeners,
                                         event,
@@ -176,6 +197,10 @@ public class CurveShapeProperties {
                         event -> {
                             if (event.getCode() == KeyCode.ENTER) {
                                 var endY = Double.valueOf(endYProperty.getTextField().getText());
+                                var categoryValue =
+                                        cadShape.category() != null
+                                                ? cadShape.category().value()
+                                                : null;
                                 this.curveProperty =
                                         new CurveProperty(
                                                 curve.getStartX(),
@@ -184,7 +209,7 @@ public class CurveShapeProperties {
                                                 curve.getControlY(),
                                                 curve.getEndX(),
                                                 endY,
-                                                cadShape.category().value());
+                                                categoryValue);
                                 propertiesUtility.propertyChanged(
                                         canvasPropertyListeners,
                                         event,
@@ -197,7 +222,8 @@ public class CurveShapeProperties {
 
         List<String> categoryValues = categories.stream().map(Category::value).toList();
         DropDownSection existentCategories = propertiesUtility.addDropdownSection(categoryValues);
-        existentCategories.getComboBox().setValue(cadShape.category().value());
+        var categoryValue = cadShape.category() != null ? cadShape.category().value() : null;
+        existentCategories.getComboBox().setValue(categoryValue);
 
         existentCategories
                 .getComboBox()
