@@ -4,7 +4,9 @@ public enum MenuItemValue {
     FILE_CREATE("Create"),
     FILE_OPEN("Open"),
     FILE_SAVE("Save"),
-    FILE_CLOSE("Close");
+    FILE_CLOSE("Close"),
+    PROJECT_CONFIGURATION("Configuration"),
+    PROJECT_FILTER("Filter");
 
     private final String text;
 
@@ -22,6 +24,8 @@ public enum MenuItemValue {
             case "Open" -> FILE_OPEN;
             case "Save" -> FILE_SAVE;
             case "Close" -> FILE_CLOSE;
+            case "Configuration" -> PROJECT_CONFIGURATION;
+            case "Filter" -> PROJECT_FILTER;
             default -> FILE_CLOSE;
         };
     }

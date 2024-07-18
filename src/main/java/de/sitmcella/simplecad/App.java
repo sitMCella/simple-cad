@@ -87,7 +87,7 @@ public class App extends Application {
 
         CadProperties cadProperties =
                 new CadProperties(propertiesTab, new CanvasSizeProperty(2000, 1900));
-        CadProject cadProject = new CadProject(canvasSection, cadProperties);
+        CadProject cadProject = new CadProject(canvasSection, cadProperties, rightPanelSection);
 
         ApplicationMenu applicationMenu = new ApplicationMenu(cadProject, stage);
         MenuBar menuBar = applicationMenu.create();

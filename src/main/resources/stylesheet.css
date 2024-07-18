@@ -55,6 +55,14 @@
     -fx-background-color: #000000;
 }
 
+.project-configuration-section {
+    -fx-background-color: #000000;
+}
+
+.project-filter-section {
+    -fx-background-color: #000000;
+}
+
 .canvas-properties-section {
     -fx-background-color: #000000;
     -fx-padding: 5;

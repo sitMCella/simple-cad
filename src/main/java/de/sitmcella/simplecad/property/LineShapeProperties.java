@@ -1,7 +1,9 @@
 package de.sitmcella.simplecad.property;
 
 import de.sitmcella.simplecad.CadShape;
+import de.sitmcella.simplecad.Category;
 import java.util.List;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.Tab;
 import javafx.scene.input.KeyCode;
@@ -20,24 +22,32 @@ public class LineShapeProperties {
 
     private LineProperty lineProperty;
 
+    private List<Category> categories;
+
     public LineShapeProperties(
             final Tab propertiesTab,
             final List<CanvasPropertyListener> canvasPropertyListeners,
-            final PropertiesUtility propertiesUtility) {
+            final PropertiesUtility propertiesUtility,
+            List<Category> categories) {
         this.propertiesTab = propertiesTab;
         this.canvasPropertyListeners = canvasPropertyListeners;
         this.propertiesUtility = propertiesUtility;
         this.lineProperty = null;
+        this.categories = categories;
     }
 
     public void showLineShapeProperties(CadShape cadShape) {
         var line = (Line) cadShape.shape();
         this.lineProperty =
                 new LineProperty(
-                        line.getStartX(), line.getStartY(), line.getEndX(), line.getEndY());
+                        line.getStartX(),
+                        line.getStartY(),
+                        line.getEndX(),
+                        line.getEndY(),
+                        cadShape.category().value());
         Label title = new Label("Line");
         title.setFont(Font.font("Verdana", FontWeight.BOLD, 12));
-        PropertiesSection startXProperty =
+        TextFieldSection startXProperty =
                 propertiesUtility.addTextSection("Start X:", String.valueOf(line.getStartX()));
         startXProperty
                 .getTextField()
@@ -51,14 +61,15 @@ public class LineShapeProperties {
                                                 startX,
                                                 this.lineProperty.startY(),
                                                 this.lineProperty.endX(),
-                                                this.lineProperty.endY());
+                                                this.lineProperty.endY(),
+                                                this.lineProperty.category());
                                 propertiesUtility.propertyChanged(
                                         canvasPropertyListeners,
                                         event,
                                         new CanvasProperty(ShapeType.LINE, this.lineProperty));
                             }
                         });
-        PropertiesSection startYProperty =
+        TextFieldSection startYProperty =
                 propertiesUtility.addTextSection("Start Y:", String.valueOf(line.getStartY()));
         startYProperty
                 .getTextField()
@@ -72,14 +83,15 @@ public class LineShapeProperties {
                                                 this.lineProperty.startX(),
                                                 startY,
                                                 this.lineProperty.endX(),
-                                                this.lineProperty.endY());
+                                                this.lineProperty.endY(),
+                                                this.lineProperty.category());
                                 propertiesUtility.propertyChanged(
                                         canvasPropertyListeners,
                                         event,
                                         new CanvasProperty(ShapeType.LINE, this.lineProperty));
                             }
                         });
-        PropertiesSection endXProperty =
+        TextFieldSection endXProperty =
                 propertiesUtility.addTextSection("End X:", String.valueOf(line.getEndX()));
         endXProperty
                 .getTextField()
@@ -92,14 +104,15 @@ public class LineShapeProperties {
                                                 this.lineProperty.startX(),
                                                 this.lineProperty.startY(),
                                                 endX,
-                                                this.lineProperty.endY());
+                                                this.lineProperty.endY(),
+                                                this.lineProperty.category());
                                 propertiesUtility.propertyChanged(
                                         canvasPropertyListeners,
                                         event,
                                         new CanvasProperty(ShapeType.LINE, this.lineProperty));
                             }
                         });
-        PropertiesSection endYProperty =
+        TextFieldSection endYProperty =
                 propertiesUtility.addTextSection("End Y:", String.valueOf(line.getEndY()));
         endYProperty
                 .getTextField()
@@ -112,22 +125,73 @@ public class LineShapeProperties {
                                                 this.lineProperty.startX(),
                                                 this.lineProperty.startY(),
                                                 this.lineProperty.endX(),
-                                                endY);
+                                                endY,
+                                                this.lineProperty.category());
                                 propertiesUtility.propertyChanged(
                                         canvasPropertyListeners,
                                         event,
                                         new CanvasProperty(ShapeType.LINE, this.lineProperty));
                             }
                         });
+
+        Label categoryTitle = new Label("Category");
+        title.setFont(Font.font("Verdana", FontWeight.BOLD, 12));
+
+        List<String> categoryValues = categories.stream().map(Category::value).toList();
+        DropDownSection existentCategories = propertiesUtility.addDropdownSection(categoryValues);
+        existentCategories.getComboBox().setValue(cadShape.category().value());
+
+        existentCategories
+                .getComboBox()
+                .setOnAction(
+                        event -> {
+                            lineProperty =
+                                    new LineProperty(
+                                            lineProperty.startX(),
+                                            lineProperty.startY(),
+                                            lineProperty.endX(),
+                                            lineProperty.endY(),
+                                            (String) existentCategories.getComboBox().getValue());
+                            propertiesUtility.propertyChanged(
+                                    canvasPropertyListeners,
+                                    event,
+                                    new CanvasProperty(ShapeType.LINE, lineProperty));
+                        });
+
+        Button resetFilterButton = new Button();
+        resetFilterButton.setText("Reset");
+        resetFilterButton.setOnMouseClicked(
+                (e) -> {
+                    existentCategories.getComboBox().setValue(null);
+                    lineProperty =
+                            new LineProperty(
+                                    lineProperty.startX(),
+                                    lineProperty.startY(),
+                                    lineProperty.endX(),
+                                    lineProperty.endY(),
+                                    null);
+                    propertiesUtility.propertyChanged(
+                            canvasPropertyListeners,
+                            e,
+                            new CanvasProperty(ShapeType.LINE, lineProperty));
+                });
+
         VBox vBox =
                 new VBox(
                         title,
                         startXProperty.getParent(),
                         startYProperty.getParent(),
                         endXProperty.getParent(),
-                        endYProperty.getParent());
+                        endYProperty.getParent(),
+                        categoryTitle,
+                        existentCategories.getParent(),
+                        resetFilterButton);
         vBox.setSpacing(5);
         vBox.getStyleClass().add("canvas-properties-section");
         this.propertiesTab.setContent(vBox);
+    }
+
+    public void setCategories(final List<Category> categories) {
+        this.categories = categories;
     }
 }

@@ -3,6 +3,9 @@ package de.sitmcella.simplecad.storage;
 import static de.sitmcella.simplecad.property.ShapeType.LINE;
 
 import de.sitmcella.simplecad.CadCanvas;
+import de.sitmcella.simplecad.CategoriesChangeEvent;
+import de.sitmcella.simplecad.CategoriesChangeListener;
+import de.sitmcella.simplecad.Category;
 import de.sitmcella.simplecad.property.ShapeType;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -31,13 +34,26 @@ public class CanvasStorage {
 
     private final de.sitmcella.simplecad.drawer.Curve curve;
 
+    private List<Category> categories;
+
+    private final List<CategoriesChangeListener> categoriesChangeListeners;
+
     public CanvasStorage(
             final CadCanvas cadCanvas,
             final de.sitmcella.simplecad.drawer.Line line,
-            de.sitmcella.simplecad.drawer.Curve curve) {
+            de.sitmcella.simplecad.drawer.Curve curve,
+            List<Category> categories,
+            final CategoriesChangeListener categoriesChangeListener) {
         this.cadCanvas = cadCanvas;
         this.line = line;
         this.curve = curve;
+        this.categories = categories;
+        this.categoriesChangeListeners =
+                new ArrayList<>() {
+                    {
+                        add(categoriesChangeListener);
+                    }
+                };
     }
 
     public void save(String filePath) {
@@ -57,6 +73,13 @@ public class CanvasStorage {
                         String.valueOf(canvasSize.canvasHeight())
                     };
             printWriter.println(convertToCSV(canvasData));
+            if (this.categories.isEmpty()) {
+                printWriter.println(convertToCSV(new String[] {"None"}));
+            } else {
+                var categoryEntries = this.categories.stream().map(Category::value).toList();
+                String[] categoriesData = categoryEntries.toArray(String[]::new);
+                printWriter.println(convertToCSV(categoriesData));
+            }
             cadCanvas.getShapes().stream()
                     .forEach(
                             shape -> {
@@ -67,6 +90,7 @@ public class CanvasStorage {
                                         String[] lineData =
                                                 new String[] {
                                                     LINE.toString(),
+                                                    shape.category().value(),
                                                     String.valueOf(line.getStartX()),
                                                     String.valueOf(line.getStartY()),
                                                     String.valueOf(line.getEndX()),
@@ -79,6 +103,7 @@ public class CanvasStorage {
                                         String[] curveData =
                                                 new String[] {
                                                     ShapeType.CURVE.toString(),
+                                                    shape.category().value(),
                                                     String.valueOf(curve.getStartX()),
                                                     String.valueOf(curve.getStartY()),
                                                     String.valueOf(curve.getControlX()),
@@ -114,30 +139,46 @@ public class CanvasStorage {
                 logger.warn("Cannot parse the file.");
                 return;
             }
+            var categoriesEntries = getRecordFromLine(scanner.nextLine());
+            if (categoriesEntries.size() == 1 && categoriesEntries.contains("None")) {
+                this.categories = new ArrayList<>();
+            } else {
+                this.categories = categoriesEntries.stream().map(Category::new).toList();
+            }
+            categoriesChangeListeners.forEach(
+                    categoriesChangeListener ->
+                            categoriesChangeListener.categoriesChanged(
+                                    new CategoriesChangeEvent(this, this.categories)));
             while (scanner.hasNextLine()) {
                 var data = getRecordFromLine(scanner.nextLine());
                 switch (ShapeType.from(data.get(0))) {
                     case LINE -> {
-                        if (data.size() == 5) {
-                            double startX = Double.parseDouble(data.get(1));
-                            double startY = Double.parseDouble(data.get(2));
-                            double endX = Double.parseDouble(data.get(3));
-                            double endY = Double.parseDouble(data.get(4));
-                            var shapes = this.line.createLineShape(startX, startY, endX, endY);
+                        if (data.size() == 6) {
+                            String category = data.get(1);
+                            double startX = Double.parseDouble(data.get(2));
+                            double startY = Double.parseDouble(data.get(3));
+                            double endX = Double.parseDouble(data.get(4));
+                            double endY = Double.parseDouble(data.get(5));
+                            this.line.setCategories(this.categories);
+                            var shapes =
+                                    this.line.createLineShape(startX, startY, endX, endY, category);
                             this.cadCanvas.addShapes(shapes);
                         }
                     }
                     case CURVE -> {
-                        if (data.size() == 7) {
-                            double startX = Double.parseDouble(data.get(1));
-                            double startY = Double.parseDouble(data.get(2));
-                            double controlX = Double.parseDouble(data.get(3));
-                            double controlY = Double.parseDouble(data.get(4));
-                            double endX = Double.parseDouble(data.get(5));
-                            double endY = Double.parseDouble(data.get(6));
+                        if (data.size() == 8) {
+                            String category = data.get(1);
+                            double startX = Double.parseDouble(data.get(2));
+                            double startY = Double.parseDouble(data.get(3));
+                            double controlX = Double.parseDouble(data.get(4));
+                            double controlY = Double.parseDouble(data.get(5));
+                            double endX = Double.parseDouble(data.get(6));
+                            double endY = Double.parseDouble(data.get(7));
+                            this.curve.setCategories(this.categories);
                             var shapes =
                                     this.curve.createCurveShape(
-                                            startX, startY, controlX, controlY, endX, endY);
+                                            startX, startY, controlX, controlY, endX, endY,
+                                            category);
                             this.cadCanvas.addShapes(shapes);
                         }
                     }
@@ -179,5 +220,9 @@ public class CanvasStorage {
             }
         }
         return values;
+    }
+
+    public void setCategories(List<Category> categories) {
+        this.categories = categories;
     }
 }

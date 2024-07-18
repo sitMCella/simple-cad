@@ -5,6 +5,7 @@ import de.sitmcella.simplecad.CadShape;
 import de.sitmcella.simplecad.Category;
 import de.sitmcella.simplecad.property.LineProperty;
 import java.util.ArrayList;
+import java.util.List;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
@@ -21,11 +22,15 @@ public class Line extends Shape implements ShapeDrawer {
 
     private javafx.scene.shape.Line line;
 
-    public Line(final CadCanvas cadCanvas, final ShapeDrawerListener shapeDrawerListener) {
+    public Line(
+            final CadCanvas cadCanvas,
+            final ShapeDrawerListener shapeDrawerListener,
+            final List<Category> categories) {
         super(
                 cadCanvas,
                 shapeDrawerListener,
-                new ButtonConfiguration(DRAW_ACTION, ICON, "line-button"));
+                new ButtonConfiguration(DRAW_ACTION, ICON, "line-button"),
+                categories);
         this.actionOngoing = false;
         this.line = null;
     }
@@ -88,19 +93,23 @@ public class Line extends Shape implements ShapeDrawer {
         var startY = originalShape.getStartY() - 20;
         var endX = originalShape.getEndX() - 20;
         var endY = originalShape.getEndY() - 20;
-        return createLineShape(startX, startY, endX, endY);
+        return createLineShape(startX, startY, endX, endY, cadShape.category().value());
     }
 
-    public Shapes createLineShape(double startX, double startY, double endX, double endY) {
+    public Shapes createLineShape(
+            double startX, double startY, double endX, double endY, String category) {
         javafx.scene.shape.Line line = create(startX, startY, endX, endY);
         Circle startPoint = new Circle(startX, startY, 3.0d);
         startPoint.setOnMouseExited(this.cadCanvas::handlePointMouseExited);
         Circle endPoint = new Circle(endX, endY, 3.0d);
         endPoint.setOnMouseExited(this.cadCanvas::handlePointMouseExited);
+        var nullCategory = new Category("Null");
+        var categoryEntry =
+                categoryExists(new Category(category)) ? new Category(category) : nullCategory;
         var shapes = new ArrayList<CadShape>();
-        shapes.add(new CadShape(startPoint, new Category("None")));
-        shapes.add(new CadShape(line, new Category("None")));
-        shapes.add(new CadShape(endPoint, new Category("None")));
+        shapes.add(new CadShape(startPoint, categoryEntry));
+        shapes.add(new CadShape(line, categoryEntry));
+        shapes.add(new CadShape(endPoint, categoryEntry));
         return new Shapes(shapes, line);
     }
 
@@ -114,16 +123,21 @@ public class Line extends Shape implements ShapeDrawer {
         line.setStartY(lineProperty.startY());
         line.setEndX(lineProperty.endX());
         line.setEndY(lineProperty.endY());
-        this.cadCanvas.cadShape = new CadShape(line, cadShape.category());
+        var nullCategory = new Category("Null");
+        var categoryEntry =
+                categoryExists(new Category(lineProperty.category()))
+                        ? new Category(lineProperty.category())
+                        : nullCategory;
+        this.cadCanvas.cadShape = new CadShape(line, categoryEntry);
         var initialStartPoint = this.cadCanvas.getPoint(line, lineStartX, lineStartY);
         var startCircle = initialStartPoint.circle();
         this.cadCanvas.removePoint(initialStartPoint);
         this.cadCanvas.addPoint(lineProperty.startX(), lineProperty.startY(), startCircle, line);
-
         var initialEndPoint = this.cadCanvas.getPoint(line, lineEndX, lineEndY);
         var endCircle = initialEndPoint.circle();
         this.cadCanvas.removePoint(initialEndPoint);
         this.cadCanvas.addPoint(lineProperty.endX(), lineProperty.endY(), endCircle, line);
+        this.cadCanvas.updateShape(this.cadCanvas.cadShape);
     }
 
     private javafx.scene.shape.Line create(double startX, double startY, double endX, double endY) {

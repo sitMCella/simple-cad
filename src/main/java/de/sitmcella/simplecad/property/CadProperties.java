@@ -1,6 +1,7 @@
 package de.sitmcella.simplecad.property;
 
 import de.sitmcella.simplecad.CadShape;
+import de.sitmcella.simplecad.Category;
 import java.util.ArrayList;
 import java.util.List;
 import javafx.scene.control.Tab;
@@ -27,9 +28,17 @@ public class CadProperties {
                         canvasPropertyListeners,
                         propertiesUtility);
         this.lineShapeProperties =
-                new LineShapeProperties(propertiesTab, canvasPropertyListeners, propertiesUtility);
+                new LineShapeProperties(
+                        propertiesTab,
+                        canvasPropertyListeners,
+                        propertiesUtility,
+                        new ArrayList<>());
         this.curveShapeProperties =
-                new CurveShapeProperties(propertiesTab, canvasPropertyListeners, propertiesUtility);
+                new CurveShapeProperties(
+                        propertiesTab,
+                        canvasPropertyListeners,
+                        propertiesUtility,
+                        new ArrayList<>());
         addConfiguration(ShapeType.CANVAS, null);
     }
 
@@ -51,7 +60,8 @@ public class CadProperties {
         }
     }
 
-    public CanvasSizeProperty getCanvasSizeProperty() {
-        return this.canvasProperties.getCanvasSizeProperty();
+    public void setCategories(List<Category> categories) {
+        this.lineShapeProperties.setCategories(categories);
+        this.curveShapeProperties.setCategories(categories);
     }
 }

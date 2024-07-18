@@ -27,6 +27,8 @@ import de.sitmcella.simplecad.property.CanvasPropertyListener;
 import de.sitmcella.simplecad.property.CanvasSizeProperty;
 import de.sitmcella.simplecad.property.CurveProperty;
 import de.sitmcella.simplecad.property.LineProperty;
+import de.sitmcella.simplecad.property.ProjectConfiguration;
+import de.sitmcella.simplecad.property.ProjectFilter;
 import de.sitmcella.simplecad.property.ShapeType;
 import de.sitmcella.simplecad.storage.CanvasStorage;
 import java.util.ArrayList;
@@ -47,7 +49,9 @@ public class CadProject
         implements MenuItemListener,
                 ShapeDrawerListener,
                 OperationListener,
-                CanvasPropertyListener {
+                CanvasPropertyListener,
+                CategoriesChangeListener,
+                FilterListener {
 
     private static final Logger logger = LogManager.getLogger();
 
@@ -77,16 +81,26 @@ public class CadProject
 
     private final CanvasStorage canvasStorage;
 
-    public CadProject(final Pane pane, final CadProperties cadProperties) {
+    private final ProjectConfiguration projectConfiguration;
+
+    private final ProjectFilter projectFilter;
+
+    private List<Category> categories;
+
+    private Category selectedCategory;
+
+    public CadProject(
+            final Pane pane, final CadProperties cadProperties, final Pane rightPanelSection) {
         this.pane = pane;
         this.cadProperties = cadProperties;
         this.drawerProperties =
                 new DrawerProperties(DrawActions.SELECT, OperationAction.NULL, false);
         this.cadCanvas = new CadCanvas(pane, drawerProperties);
         this.cadProperties.addListener(this);
-        this.select = new Select(this.cadCanvas, this);
-        this.line = new Line(this.cadCanvas, this);
-        this.curve = new Curve(this.cadCanvas, this);
+        this.categories = new ArrayList<>();
+        this.select = new Select(this.cadCanvas, this, categories);
+        this.line = new Line(this.cadCanvas, this, categories);
+        this.curve = new Curve(this.cadCanvas, this, categories);
         this.shapeDrawers =
                 new ArrayList<>() {
                     {
@@ -106,7 +120,9 @@ public class CadProject
                         add(point);
                     }
                 };
-        this.canvasStorage = new CanvasStorage(cadCanvas, line, curve);
+        this.canvasStorage = new CanvasStorage(cadCanvas, line, curve, categories, this);
+        this.projectConfiguration = new ProjectConfiguration(rightPanelSection, categories, this);
+        this.projectFilter = new ProjectFilter(rightPanelSection, categories, this);
     }
 
     public void configureEventListeners(VBox root) {
@@ -124,6 +140,8 @@ public class CadProject
             case FILE_OPEN -> canvasStorage.open(menuItemEvent.getParameter());
             case FILE_SAVE -> canvasStorage.save(menuItemEvent.getParameter());
             case FILE_CLOSE -> Platform.exit();
+            case PROJECT_CONFIGURATION -> projectConfiguration.open();
+            case PROJECT_FILTER -> projectFilter.open(this.selectedCategory);
             default -> logger.info("Unknown MenuItemEvent");
         }
     }
@@ -316,5 +334,58 @@ public class CadProject
             shape.propertyChanged(new PropertiesChangeEvent(event, drawerProperties));
         }
         this.cadCanvas.setProperties(drawerProperties);
+    }
+
+    @Override
+    public void categoriesChanged(CategoriesChangeEvent categoriesChangeEvent) {
+        this.categories = categoriesChangeEvent.getCategories();
+        this.projectConfiguration.setCategories(this.categories);
+        this.line.setCategories(this.categories);
+        this.curve.setCategories(this.categories);
+        this.canvasStorage.setCategories(this.categories);
+        this.projectFilter.setCategories(this.categories);
+        this.cadProperties.setCategories(this.categories);
+    }
+
+    @Override
+    public void filter(FilterEvent filterEvent) {
+        this.selectedCategory = filterEvent.getCategory();
+        this.cadCanvas.setSelectedCategory(this.selectedCategory);
+        this.cadCanvas.getShapes().stream()
+                .forEach(
+                        cadShape -> {
+                            switch (ShapeType.fromClass(cadShape.shape())) {
+                                case LINE -> this.line.filter(cadShape, filterEvent.getCategory());
+                                case CURVE ->
+                                        this.curve.filter(cadShape, filterEvent.getCategory());
+                            }
+                        });
+        this.cadCanvas.canvasPoints.stream()
+                .forEach(
+                        canvasPoint -> {
+                            var mainCadShape =
+                                    this.cadCanvas.getShapes().stream()
+                                            .filter(
+                                                    cadShape ->
+                                                            cadShape.shape()
+                                                                    .equals(
+                                                                            canvasPoint
+                                                                                    .mainShape()))
+                                            .findFirst();
+                            if (mainCadShape.isPresent()) {
+                                switch (ShapeType.fromClass(canvasPoint.mainShape())) {
+                                    case LINE ->
+                                            this.line.filter(
+                                                    canvasPoint,
+                                                    mainCadShape.get(),
+                                                    filterEvent.getCategory());
+                                    case CURVE ->
+                                            this.curve.filter(
+                                                    canvasPoint,
+                                                    mainCadShape.get(),
+                                                    filterEvent.getCategory());
+                                }
+                            }
+                        });
     }
 }
