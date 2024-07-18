@@ -1,11 +1,10 @@
 package de.sitmcella.simplecad.property;
 
+import de.sitmcella.simplecad.CadShape;
+import de.sitmcella.simplecad.Category;
 import java.util.ArrayList;
 import java.util.List;
 import javafx.scene.control.Tab;
-import javafx.scene.shape.Line;
-import javafx.scene.shape.QuadCurve;
-import javafx.scene.shape.Shape;
 
 public class CadProperties {
 
@@ -29,9 +28,17 @@ public class CadProperties {
                         canvasPropertyListeners,
                         propertiesUtility);
         this.lineShapeProperties =
-                new LineShapeProperties(propertiesTab, canvasPropertyListeners, propertiesUtility);
+                new LineShapeProperties(
+                        propertiesTab,
+                        canvasPropertyListeners,
+                        propertiesUtility,
+                        new ArrayList<>());
         this.curveShapeProperties =
-                new CurveShapeProperties(propertiesTab, canvasPropertyListeners, propertiesUtility);
+                new CurveShapeProperties(
+                        propertiesTab,
+                        canvasPropertyListeners,
+                        propertiesUtility,
+                        new ArrayList<>());
         addConfiguration(ShapeType.CANVAS, null);
     }
 
@@ -39,21 +46,22 @@ public class CadProperties {
         this.canvasPropertyListeners.add(canvasPropertyListener);
     }
 
-    public void addConfiguration(ShapeType shapeType, Shape shape) {
+    public void addConfiguration(ShapeType shapeType, CadShape cadShape) {
         switch (shapeType) {
             case CANVAS -> {
                 canvasProperties.showCanvasProperties();
             }
             case LINE -> {
-                lineShapeProperties.showLineShapeProperties((Line) shape);
+                lineShapeProperties.showLineShapeProperties(cadShape);
             }
             case CURVE -> {
-                curveShapeProperties.showCurveShapeProperties((QuadCurve) shape);
+                curveShapeProperties.showCurveShapeProperties(cadShape);
             }
         }
     }
 
-    public CanvasSizeProperty getCanvasSizeProperty() {
-        return this.canvasProperties.getCanvasSizeProperty();
+    public void setCategories(List<Category> categories) {
+        this.lineShapeProperties.setCategories(categories);
+        this.curveShapeProperties.setCategories(categories);
     }
 }

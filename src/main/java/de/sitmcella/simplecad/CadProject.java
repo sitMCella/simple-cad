@@ -27,10 +27,13 @@ import de.sitmcella.simplecad.property.CanvasPropertyListener;
 import de.sitmcella.simplecad.property.CanvasSizeProperty;
 import de.sitmcella.simplecad.property.CurveProperty;
 import de.sitmcella.simplecad.property.LineProperty;
+import de.sitmcella.simplecad.property.ProjectConfiguration;
+import de.sitmcella.simplecad.property.ProjectFilter;
 import de.sitmcella.simplecad.property.ShapeType;
 import de.sitmcella.simplecad.storage.CanvasStorage;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import javafx.application.Platform;
 import javafx.scene.control.Button;
@@ -47,7 +50,9 @@ public class CadProject
         implements MenuItemListener,
                 ShapeDrawerListener,
                 OperationListener,
-                CanvasPropertyListener {
+                CanvasPropertyListener,
+                CategoriesChangeListener,
+                FilterListener {
 
     private static final Logger logger = LogManager.getLogger();
 
@@ -77,16 +82,26 @@ public class CadProject
 
     private final CanvasStorage canvasStorage;
 
-    public CadProject(final Pane pane, final CadProperties cadProperties) {
+    private final ProjectConfiguration projectConfiguration;
+
+    private final ProjectFilter projectFilter;
+
+    private List<Category> categories;
+
+    private Category selectedCategory;
+
+    public CadProject(
+            final Pane pane, final CadProperties cadProperties, final Pane rightPanelSection) {
         this.pane = pane;
         this.cadProperties = cadProperties;
         this.drawerProperties =
                 new DrawerProperties(DrawActions.SELECT, OperationAction.NULL, false);
         this.cadCanvas = new CadCanvas(pane, drawerProperties);
         this.cadProperties.addListener(this);
-        this.select = new Select(this.cadCanvas, this);
-        this.line = new Line(this.cadCanvas, this);
-        this.curve = new Curve(this.cadCanvas, this);
+        this.categories = new ArrayList<>();
+        this.select = new Select(this.cadCanvas, this, categories);
+        this.line = new Line(this.cadCanvas, this, categories);
+        this.curve = new Curve(this.cadCanvas, this, categories);
         this.shapeDrawers =
                 new ArrayList<>() {
                     {
@@ -106,7 +121,9 @@ public class CadProject
                         add(point);
                     }
                 };
-        this.canvasStorage = new CanvasStorage(cadCanvas, line, curve);
+        this.canvasStorage = new CanvasStorage(cadCanvas, line, curve, categories, this);
+        this.projectConfiguration = new ProjectConfiguration(rightPanelSection, categories, this);
+        this.projectFilter = new ProjectFilter(rightPanelSection, categories, this);
     }
 
     public void configureEventListeners(VBox root) {
@@ -124,6 +141,8 @@ public class CadProject
             case FILE_OPEN -> canvasStorage.open(menuItemEvent.getParameter());
             case FILE_SAVE -> canvasStorage.save(menuItemEvent.getParameter());
             case FILE_CLOSE -> Platform.exit();
+            case PROJECT_CONFIGURATION -> projectConfiguration.open();
+            case PROJECT_FILTER -> projectFilter.open(this.selectedCategory);
             default -> logger.info("Unknown MenuItemEvent");
         }
     }
@@ -148,7 +167,7 @@ public class CadProject
     public void shapeDrawer(ShapeDrawerEvent shapeDrawerEvent) {
         switch (this.drawerProperties.drawAction()) {
             case SELECT -> {
-                if (cadCanvas.selectedShape != null) {
+                if (cadCanvas.cadShape != null) {
                     var event = (MouseEvent) shapeDrawerEvent.getSource();
                     var closestPoint = this.cadCanvas.selectClosePoint(event, true);
                     if (closestPoint != null) {
@@ -157,7 +176,7 @@ public class CadProject
                             case LINE -> moveShapePoint(DrawActions.LINE_DRAW, closestPoint);
                             case CURVE -> moveShapePoint(DrawActions.CURVE_DRAW, closestPoint);
                         }
-                        cadCanvas.selectedShape = null;
+                        cadCanvas.cadShape = null;
                         this.cadCanvas.setProperties(drawerProperties);
                     } else {
                         cadCanvas.hoverShape = null;
@@ -166,9 +185,9 @@ public class CadProject
                     }
                 } else {
                     this.cadCanvas.selectShape((MouseEvent) shapeDrawerEvent.getSource());
-                    if (this.cadCanvas.selectedShape != null) {
+                    if (this.cadCanvas.cadShape != null) {
                         ShapeType shapeType = getShapeTypeFromSelectedShape();
-                        this.cadProperties.addConfiguration(shapeType, cadCanvas.selectedShape);
+                        this.cadProperties.addConfiguration(shapeType, cadCanvas.cadShape);
                     } else {
                         this.cadProperties.addConfiguration(ShapeType.CANVAS, null);
                     }
@@ -178,7 +197,8 @@ public class CadProject
     }
 
     private void moveShapePoint(DrawActions drawAction, CanvasPoint closestPoint) {
-        var shape = getShapeDrawer(drawAction).use(cadCanvas.selectedShape, closestPoint.circle());
+        var shape =
+                getShapeDrawer(drawAction).use(cadCanvas.cadShape.shape(), closestPoint.circle());
         cadCanvas.recreatePoint(closestPoint, shape);
         this.drawerProperties =
                 new DrawerProperties(
@@ -201,7 +221,7 @@ public class CadProject
                         operationChangedEvent.getOperationAction(),
                         this.drawerProperties.constraintAngles());
         this.cadCanvas.setProperties(drawerProperties);
-        if (this.cadCanvas.selectedShape == null) {
+        if (this.cadCanvas.cadShape == null) {
             this.cadCanvas.triggerOperation(select);
             return;
         }
@@ -219,26 +239,24 @@ public class CadProject
                         canvasSizeProperty.canvasWidth(), canvasSizeProperty.canvasHeight());
             }
             case LINE -> {
-                if (this.cadCanvas.selectedShape == null) {
+                if (this.cadCanvas.cadShape == null) {
                     return;
                 }
                 var lineProperty = (LineProperty) canvasProperty.getProperty();
-                var line = (javafx.scene.shape.Line) this.cadCanvas.selectedShape;
-                this.line.update(line, lineProperty);
+                this.line.update(this.cadCanvas.cadShape, lineProperty);
             }
             case CURVE -> {
-                if (this.cadCanvas.selectedShape == null) {
+                if (this.cadCanvas.cadShape == null) {
                     return;
                 }
                 var curveProperty = (CurveProperty) canvasProperty.getProperty();
-                var curve = (javafx.scene.shape.QuadCurve) this.cadCanvas.selectedShape;
-                this.curve.update(curve, curveProperty);
+                this.curve.update(this.cadCanvas.cadShape, curveProperty);
             }
         }
     }
 
     private ShapeDrawer getShapeDrawerFromSelectedShape() {
-        return switch (ShapeType.fromClass(cadCanvas.selectedShape)) {
+        return switch (ShapeType.fromClass(cadCanvas.cadShape.shape())) {
             case LINE -> line;
             case CURVE -> curve;
             default -> select;
@@ -246,7 +264,7 @@ public class CadProject
     }
 
     private ShapeType getShapeTypeFromSelectedShape() {
-        return ShapeType.fromClass(cadCanvas.selectedShape);
+        return ShapeType.fromClass(cadCanvas.cadShape.shape());
     }
 
     public List<Shape> getShapeDrawers() {
@@ -317,5 +335,56 @@ public class CadProject
             shape.propertyChanged(new PropertiesChangeEvent(event, drawerProperties));
         }
         this.cadCanvas.setProperties(drawerProperties);
+    }
+
+    @Override
+    public void categoriesChanged(CategoriesChangeEvent categoriesChangeEvent) {
+        this.categories = categoriesChangeEvent.getCategories();
+        this.projectConfiguration.setCategories(this.categories);
+        this.line.setCategories(this.categories);
+        this.curve.setCategories(this.categories);
+        this.canvasStorage.setCategories(this.categories);
+        this.projectFilter.setCategories(this.categories);
+        this.cadProperties.setCategories(this.categories);
+    }
+
+    @Override
+    public void filter(FilterEvent filterEvent) {
+        this.selectedCategory = filterEvent.getCategory();
+        this.cadCanvas.setSelectedCategory(this.selectedCategory);
+        this.cadCanvas.getShapes().stream()
+                .forEach(
+                        cadShape -> {
+                            switch (ShapeType.fromClass(cadShape.shape())) {
+                                case LINE -> this.line.filter(cadShape, filterEvent.getCategory());
+                                case CURVE ->
+                                        this.curve.filter(cadShape, filterEvent.getCategory());
+                            }
+                        });
+        this.cadCanvas.canvasPoints.stream()
+                .forEach(
+                        canvasPoint -> {
+                            var mainCadShape = getMainCadShape(canvasPoint);
+                            if (mainCadShape.isPresent()) {
+                                switch (ShapeType.fromClass(canvasPoint.mainShape())) {
+                                    case LINE ->
+                                            this.line.filter(
+                                                    canvasPoint,
+                                                    mainCadShape.get(),
+                                                    filterEvent.getCategory());
+                                    case CURVE ->
+                                            this.curve.filter(
+                                                    canvasPoint,
+                                                    mainCadShape.get(),
+                                                    filterEvent.getCategory());
+                                }
+                            }
+                        });
+    }
+
+    private Optional<CadShape> getMainCadShape(CanvasPoint canvasPoint) {
+        return this.cadCanvas.getShapes().stream()
+                .filter(cadShape -> cadShape.shape().equals(canvasPoint.mainShape()))
+                .findFirst();
     }
 }

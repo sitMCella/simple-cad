@@ -3,13 +3,13 @@ package de.sitmcella.simplecad.property;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
 
-public class PropertiesSection {
+public class TextFieldSection {
 
     private final HBox parent;
 
     private final TextField textField;
 
-    public PropertiesSection(final HBox parent, final TextField textField) {
+    public TextFieldSection(final HBox parent, final TextField textField) {
         this.parent = parent;
         this.textField = textField;
     }

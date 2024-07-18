@@ -75,16 +75,53 @@ public class ApplicationMenu {
                             new MenuItemEvent(event.getSource(), menuItemValue, parameter));
                 };
 
+        EventHandler<ActionEvent> menuCloseEvent =
+                event -> {
+                    MenuItemValue menuItemValue =
+                            MenuItemValue.getFromText(((MenuItem) event.getSource()).getText());
+                    fireMenuItemEvent(
+                            new MenuItemEvent(event.getSource(), menuItemValue, parameter));
+                };
+
         menuCreate.setOnAction(menuCreateEvent);
         menuOpen.setOnAction(menuOpenEvent);
         menuSave.setOnAction(menuSaveEvent);
-        menuClose.setOnAction(menuCreateEvent);
+        menuClose.setOnAction(menuCloseEvent);
 
         menu.getItems().addAll(menuCreate, menuOpen, menuSave, menuClose);
 
         MenuBar menuBar = new MenuBar();
 
         menuBar.getMenus().add(menu);
+
+        Menu projectMenu = new Menu("Project");
+        MenuItem projectConfiguration = new MenuItem(MenuItemValue.PROJECT_CONFIGURATION.getText());
+
+        EventHandler<ActionEvent> menuSettingsEvent =
+                event -> {
+                    MenuItemValue menuItemValue =
+                            MenuItemValue.getFromText(((MenuItem) event.getSource()).getText());
+                    fireMenuItemEvent(
+                            new MenuItemEvent(event.getSource(), menuItemValue, parameter));
+                };
+
+        projectConfiguration.setOnAction(menuSettingsEvent);
+
+        MenuItem projectFilter = new MenuItem(MenuItemValue.PROJECT_FILTER.getText());
+
+        EventHandler<ActionEvent> projectFilterEvent =
+                event -> {
+                    MenuItemValue menuItemValue =
+                            MenuItemValue.getFromText(((MenuItem) event.getSource()).getText());
+                    fireMenuItemEvent(
+                            new MenuItemEvent(event.getSource(), menuItemValue, parameter));
+                };
+
+        projectFilter.setOnAction(projectFilterEvent);
+
+        projectMenu.getItems().addAll(projectConfiguration, projectFilter);
+
+        menuBar.getMenus().add(projectMenu);
 
         return menuBar;
     }

@@ -32,7 +32,7 @@ public class CanvasProperties {
     public void showCanvasProperties() {
         Label title = new Label("Canvas");
         title.setFont(Font.font("Verdana", FontWeight.BOLD, 12));
-        PropertiesSection canvasWidthProperties =
+        TextFieldSection canvasWidthProperties =
                 propertiesUtility.addTextSection(
                         "Width:", String.valueOf(canvasSizeProperty.canvasWidth()));
         canvasWidthProperties
@@ -53,7 +53,7 @@ public class CanvasProperties {
                                                 new CanvasSizeProperty(width, heigth)));
                             }
                         });
-        PropertiesSection canvasHeightProperties =
+        TextFieldSection canvasHeightProperties =
                 propertiesUtility.addTextSection(
                         "Height:", String.valueOf(canvasSizeProperty.canvasHeight()));
         canvasHeightProperties
