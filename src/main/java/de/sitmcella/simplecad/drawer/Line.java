@@ -156,13 +156,7 @@ public class Line extends Shape implements ShapeDrawer {
         line.setEndX(endX);
         line.setEndY(endY);
         line.setStrokeWidth(1.0);
-        if (this.cadCanvas.getSelectedCategory() == null) {
-            line.setStroke(Color.BLACK);
-        } else if (category == null || !category.equals(this.cadCanvas.getSelectedCategory())) {
-            line.setStroke(Color.gray(0.7));
-        } else {
-            line.setStroke(Color.BLACK);
-        }
+        configureStroke(line, this.cadCanvas, category);
         line.setOnMouseEntered(this.cadCanvas::handleShapeMouseEntered);
         line.setOnMouseExited(this.cadCanvas::handleShapeMouseExited);
         return line;
@@ -190,17 +184,7 @@ public class Line extends Shape implements ShapeDrawer {
         this.actionOngoing = true;
         this.line = (javafx.scene.shape.Line) selectedShape;
         this.line.setStrokeWidth(1.0d);
-        if (this.cadCanvas.getSelectedCategory() == null) {
-            this.line.setStroke(Color.BLACK);
-        } else if (this.cadCanvas.getShape().category() == null
-                || !this.cadCanvas
-                        .getShape()
-                        .category()
-                        .equals(this.cadCanvas.getSelectedCategory())) {
-            this.line.setStroke(Color.gray(0.7));
-        } else {
-            this.line.setStroke(Color.BLACK);
-        }
+        configureStroke(this.line, this.cadCanvas, this.cadCanvas.getShape().category());
         if (closestPoint.getCenterX() == line.getStartX()
                 && closestPoint.getCenterY() == line.getStartY()) {
             var endX = line.getEndX();
@@ -211,5 +195,16 @@ public class Line extends Shape implements ShapeDrawer {
             line.setEndY(closestPoint.getCenterY());
         }
         return line;
+    }
+
+    private void configureStroke(
+            javafx.scene.shape.Line line, CadCanvas cadCanvas, Category category) {
+        if (cadCanvas.getSelectedCategory() == null) {
+            line.setStroke(Color.BLACK);
+        } else if (category == null || !category.equals(cadCanvas.getSelectedCategory())) {
+            line.setStroke(Color.gray(0.7));
+        } else {
+            line.setStroke(Color.BLACK);
+        }
     }
 }

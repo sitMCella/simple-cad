@@ -128,13 +128,7 @@ public class Curve extends Shape implements ShapeDrawer {
         curve.setOnMouseEntered(this.cadCanvas::handleShapeMouseEntered);
         curve.setOnMouseExited(this.cadCanvas::handleShapeMouseExited);
         curve.setFill(Color.TRANSPARENT);
-        if (this.cadCanvas.getSelectedCategory() == null) {
-            curve.setStroke(Color.BLACK);
-        } else if (category == null || !category.equals(this.cadCanvas.getSelectedCategory())) {
-            curve.setStroke(Color.gray(0.7));
-        } else {
-            curve.setStroke(Color.BLACK);
-        }
+        configureStroke(curve, this.cadCanvas, category);
         curve.setStrokeWidth(1.0d);
         return curve;
     }
@@ -247,17 +241,7 @@ public class Curve extends Shape implements ShapeDrawer {
         this.stage = Stage.CONTROL;
         this.curve = (javafx.scene.shape.QuadCurve) selectedShape;
         this.curve.setStrokeWidth(1.0d);
-        if (this.cadCanvas.getSelectedCategory() == null) {
-            this.curve.setStroke(Color.BLACK);
-        } else if (this.cadCanvas.getShape().category() == null
-                || !this.cadCanvas
-                        .getShape()
-                        .category()
-                        .equals(this.cadCanvas.getSelectedCategory())) {
-            this.curve.setStroke(Color.gray(0.7));
-        } else {
-            this.curve.setStroke(Color.BLACK);
-        }
+        configureStroke(this.curve, this.cadCanvas, this.cadCanvas.getShape().category());
         if (closestPoint.getCenterX() == curve.getStartX()
                 && closestPoint.getCenterY() == curve.getStartY()) {
             var endX = curve.getEndX();
@@ -268,6 +252,17 @@ public class Curve extends Shape implements ShapeDrawer {
             curve.setEndY(closestPoint.getCenterY());
         }
         return curve;
+    }
+
+    private void configureStroke(
+            javafx.scene.shape.QuadCurve curve, CadCanvas cadCanvas, Category category) {
+        if (cadCanvas.getSelectedCategory() == null) {
+            curve.setStroke(Color.BLACK);
+        } else if (category == null || !category.equals(cadCanvas.getSelectedCategory())) {
+            curve.setStroke(Color.gray(0.7));
+        } else {
+            curve.setStroke(Color.BLACK);
+        }
     }
 }
 
