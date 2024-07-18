@@ -5,6 +5,7 @@ import de.sitmcella.simplecad.Category;
 import java.util.List;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.Separator;
 import javafx.scene.control.Tab;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.VBox;
@@ -217,8 +218,10 @@ public class CurveShapeProperties {
                             }
                         });
 
+        Separator separator = new Separator();
+
         Label categoryTitle = new Label("Category");
-        title.setFont(Font.font("Verdana", FontWeight.BOLD, 12));
+        categoryTitle.setFont(Font.font("Verdana", FontWeight.BOLD, 12));
 
         List<String> categoryValues = categories.stream().map(Category::value).toList();
         DropDownSection existentCategories = propertiesUtility.addDropdownSection(categoryValues);
@@ -273,6 +276,7 @@ public class CurveShapeProperties {
                         controlYProperty.getParent(),
                         endXProperty.getParent(),
                         endYProperty.getParent(),
+                        separator,
                         categoryTitle,
                         existentCategories.getParent(),
                         resetFilterButton);
