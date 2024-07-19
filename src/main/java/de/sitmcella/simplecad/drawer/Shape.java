@@ -100,7 +100,14 @@ public class Shape implements PropertiesListener {
         }
     }
 
-    public boolean isActive(CadShape cadShape) {
-        return cadShape.shape().getStroke().equals(Color.BLACK);
+    protected void configureStroke(
+            javafx.scene.shape.Shape shape, CadCanvas cadCanvas, Category category) {
+        if (cadCanvas.getSelectedCategory() == null) {
+            shape.setStroke(Color.BLACK);
+        } else if (category == null || !category.equals(cadCanvas.getSelectedCategory())) {
+            shape.setStroke(Color.gray(0.7));
+        } else {
+            shape.setStroke(Color.BLACK);
+        }
     }
 }
