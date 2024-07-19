@@ -5,7 +5,7 @@ import java.util.EventObject;
 public class ShapeDrawerEvent extends EventObject {
 
     /**
-     * Constructs a prototypical Event.
+     * Constructs a Shape Drawer Event.
      *
      * @param source the object on which the Event initially occurred
      * @throws IllegalArgumentException if source is null

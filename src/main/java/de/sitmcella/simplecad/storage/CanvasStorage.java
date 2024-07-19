@@ -3,9 +3,9 @@ package de.sitmcella.simplecad.storage;
 import static de.sitmcella.simplecad.property.ShapeType.LINE;
 
 import de.sitmcella.simplecad.CadCanvas;
-import de.sitmcella.simplecad.CategoriesChangeEvent;
-import de.sitmcella.simplecad.CategoriesChangeListener;
-import de.sitmcella.simplecad.Category;
+import de.sitmcella.simplecad.category.CategoriesChangeEvent;
+import de.sitmcella.simplecad.category.CategoriesChangeListener;
+import de.sitmcella.simplecad.category.Category;
 import de.sitmcella.simplecad.property.ShapeType;
 import java.io.File;
 import java.io.FileNotFoundException;

@@ -12,4 +12,5 @@ module de.sitmcella.simplecad {
     exports de.sitmcella.simplecad.menu;
     exports de.sitmcella.simplecad.operation;
     exports de.sitmcella.simplecad.storage;
+    exports de.sitmcella.simplecad.category;
 }

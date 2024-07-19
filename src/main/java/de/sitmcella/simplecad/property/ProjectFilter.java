@@ -1,8 +1,8 @@
 package de.sitmcella.simplecad.property;
 
-import de.sitmcella.simplecad.Category;
-import de.sitmcella.simplecad.FilterEvent;
-import de.sitmcella.simplecad.FilterListener;
+import de.sitmcella.simplecad.category.Category;
+import de.sitmcella.simplecad.category.FilterEvent;
+import de.sitmcella.simplecad.category.FilterListener;
 import java.util.ArrayList;
 import java.util.List;
 import javafx.beans.value.ChangeListener;

@@ -3,7 +3,7 @@ package de.sitmcella.simplecad.drawer;
 import de.sitmcella.simplecad.CadCanvas;
 import de.sitmcella.simplecad.CadShape;
 import de.sitmcella.simplecad.CanvasPoint;
-import de.sitmcella.simplecad.Category;
+import de.sitmcella.simplecad.category.Category;
 import de.sitmcella.simplecad.operation.OperationAction;
 import java.util.ArrayList;
 import java.util.List;

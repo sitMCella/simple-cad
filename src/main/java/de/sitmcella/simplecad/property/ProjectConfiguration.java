@@ -1,8 +1,8 @@
 package de.sitmcella.simplecad.property;
 
-import de.sitmcella.simplecad.CategoriesChangeEvent;
-import de.sitmcella.simplecad.CategoriesChangeListener;
-import de.sitmcella.simplecad.Category;
+import de.sitmcella.simplecad.category.CategoriesChangeEvent;
+import de.sitmcella.simplecad.category.CategoriesChangeListener;
+import de.sitmcella.simplecad.category.Category;
 import java.util.ArrayList;
 import java.util.List;
 import javafx.beans.value.ChangeListener;

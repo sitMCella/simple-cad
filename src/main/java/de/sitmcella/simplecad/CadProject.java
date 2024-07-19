@@ -1,5 +1,10 @@
 package de.sitmcella.simplecad;
 
+import de.sitmcella.simplecad.category.CategoriesChangeEvent;
+import de.sitmcella.simplecad.category.CategoriesChangeListener;
+import de.sitmcella.simplecad.category.Category;
+import de.sitmcella.simplecad.category.FilterEvent;
+import de.sitmcella.simplecad.category.FilterListener;
 import de.sitmcella.simplecad.drawer.Curve;
 import de.sitmcella.simplecad.drawer.DrawActions;
 import de.sitmcella.simplecad.drawer.DrawerProperties;

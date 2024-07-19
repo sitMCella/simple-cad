@@ -1,5 +1,6 @@
 package de.sitmcella.simplecad;
 
+import de.sitmcella.simplecad.category.Category;
 import de.sitmcella.simplecad.drawer.DrawActions;
 import de.sitmcella.simplecad.drawer.DrawerProperties;
 import de.sitmcella.simplecad.drawer.ShapeDrawer;
