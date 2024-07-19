@@ -104,6 +104,24 @@ public class ProjectCategories {
                                     selectedCategory.setText(newValue);
                                 });
 
+        selectedCategory.setOnKeyPressed(
+                event -> {
+                    if (event.getCode() == KeyCode.ENTER) {
+                        var newCategoryValue = selectedCategory.getText();
+                        var selectedCategoryValue = (String)existentCategories.getComboBox().getValue();
+                        List<Category> newCategories = new ArrayList<>();
+                        this.categories.stream().forEach(c -> newCategories.add(c));
+                        newCategories.remove(new Category(selectedCategoryValue));
+                        newCategories.add(new Category(newCategoryValue));
+                        categoriesChangeListeners.forEach(
+                                categoriesChangeListener ->
+                                        categoriesChangeListener.categoriesChanged(
+                                                new CategoriesChangeEvent(this, newCategories)));
+                        existentCategories.getComboBox().getItems().remove(selectedCategoryValue);
+                        existentCategories.getComboBox().getItems().add(newCategoryValue);
+                    }
+                });
+
         Button tashButton = new Button();
         tashButton.setGraphic(TRASH_ICON);
         tashButton.setId("trash-button");

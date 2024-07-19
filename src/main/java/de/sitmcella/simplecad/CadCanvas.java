@@ -287,4 +287,17 @@ public class CadCanvas {
         this.shapes.removeAll(replacedShapes);
         this.shapes.addAll(updatedShapes);
     }
+
+    public void modifyCategory(Category removedCategory, Category modifiedCategory) {
+        var updatedShapes = new ArrayList<CadShape>();
+        var replacedShapes = new ArrayList<CadShape>();
+        this.shapes.stream().forEach(shape -> {
+            if (shape.category() != null && shape.category().equals(removedCategory)) {
+                updatedShapes.add(new CadShape(shape.shape(), modifiedCategory));
+                replacedShapes.add(shape);
+            }
+        });
+        this.shapes.removeAll(replacedShapes);
+        this.shapes.addAll(updatedShapes);
+    }
 }
