@@ -108,6 +108,9 @@ public class ProjectCategories {
                 event -> {
                     if (event.getCode() == KeyCode.ENTER) {
                         var newCategoryValue = selectedCategory.getText();
+                        if(this.categories.contains(new Category(newCategoryValue))) {
+                            return;
+                        }
                         var selectedCategoryValue = (String)existentCategories.getComboBox().getValue();
                         List<Category> newCategories = new ArrayList<>();
                         this.categories.stream().forEach(c -> newCategories.add(c));
@@ -127,6 +130,9 @@ public class ProjectCategories {
         tashButton.setId("trash-button");
         tashButton.setOnMouseClicked(
                 (e) -> {
+                    if(selectedCategory.getText() != existentCategories.getComboBox().getValue()) {
+                        return;
+                    }
                     List<Category> updatedCategories = new ArrayList<>();
                     this.categories.stream().forEach(c -> updatedCategories.add(new Category(c.value())));
                     updatedCategories.remove(new Category(selectedCategory.getText()));
@@ -153,14 +159,18 @@ public class ProjectCategories {
         addCategory.setOnKeyPressed(
                 event -> {
                     if (event.getCode() == KeyCode.ENTER) {
+                        var newCategoryValue = addCategory.getText();
+                        if(this.categories.contains(new Category(newCategoryValue))) {
+                            return;
+                        }
                         List<Category> newCategories = new ArrayList<>();
                         this.categories.stream().forEach(c -> newCategories.add(c));
-                        newCategories.add(new Category(addCategory.getText()));
+                        newCategories.add(new Category(newCategoryValue));
                         categoriesChangeListeners.forEach(
                                 categoriesChangeListener ->
                                         categoriesChangeListener.categoriesChanged(
                                                 new CategoriesChangeEvent(this, newCategories)));
-                        existentCategories.getComboBox().getItems().add(addCategory.getText());
+                        existentCategories.getComboBox().getItems().add(newCategoryValue);
                         addCategory.setText("");
                     }
                 });
