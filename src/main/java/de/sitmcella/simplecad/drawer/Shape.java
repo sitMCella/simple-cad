@@ -45,7 +45,8 @@ public class Shape implements PropertiesListener {
         this.button = button;
         this.drawerProperties =
                 new DrawerProperties(DrawActions.SELECT, OperationAction.NULL, false);
-        this.categories = categories;
+        this.categories = new ArrayList<>();
+        categories.forEach(c -> this.categories.add(new Category(c.value())));
     }
 
     @Override

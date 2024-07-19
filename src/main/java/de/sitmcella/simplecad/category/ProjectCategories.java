@@ -43,7 +43,8 @@ public class ProjectCategories {
             List<Category> categories,
             final CategoriesChangeListener categoriesChangeListener) {
         this.rightPanelSection = rightPanelSection;
-        this.categories = categories;
+        this.categories = new ArrayList<>();
+        categories.forEach(c -> this.categories.add(new Category(c.value())));
         this.propertiesUtility = new PropertiesUtility();
         for (Node child : rightPanelSection.getChildren()) {
             this.tabPane = (TabPane) child;
@@ -108,7 +109,13 @@ public class ProjectCategories {
         tashButton.setId("trash-button");
         tashButton.setOnMouseClicked(
                 (e) -> {
-                    this.categories.remove(new Category(selectedCategory.getText()));
+                    List<Category> updatedCategories = new ArrayList<>();
+                    this.categories.stream().forEach(c -> updatedCategories.add(new Category(c.value())));
+                    updatedCategories.remove(new Category(selectedCategory.getText()));
+                    categoriesChangeListeners.forEach(
+                            categoriesChangeListener ->
+                                    categoriesChangeListener.categoriesChanged(
+                                            new CategoriesChangeEvent(this, updatedCategories)));
                     existentCategories.getComboBox().getItems().remove(selectedCategory.getText());
                     selectedCategory.setText("");
                 });

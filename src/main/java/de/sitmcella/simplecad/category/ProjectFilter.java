@@ -39,7 +39,8 @@ public class ProjectFilter {
             FilterListener filterListener) {
         this.propertiesUtility = new PropertiesUtility();
         this.rightPanelSection = rightPanelSection;
-        this.categories = categories;
+        this.categories = new ArrayList<>();
+        categories.forEach(c -> this.categories.add(new Category(c.value())));
         for (Node child : rightPanelSection.getChildren()) {
             this.tabPane = (TabPane) child;
         }

@@ -274,4 +274,17 @@ public class CadCanvas {
     public void setSelectedCategory(Category selectedCategory) {
         this.selectedCategory = selectedCategory;
     }
+
+    public void removeCategory(Category category) {
+        var updatedShapes = new ArrayList<CadShape>();
+        var replacedShapes = new ArrayList<CadShape>();
+        this.shapes.stream().forEach(shape -> {
+            if (shape.category() != null && shape.category().equals(category)) {
+                updatedShapes.add(new CadShape(shape.shape(), null));
+                replacedShapes.add(shape);
+            }
+        });
+        this.shapes.removeAll(replacedShapes);
+        this.shapes.addAll(updatedShapes);
+    }
 }

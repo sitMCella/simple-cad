@@ -47,7 +47,8 @@ public class CanvasStorage {
         this.cadCanvas = cadCanvas;
         this.line = line;
         this.curve = curve;
-        this.categories = categories;
+        this.categories = new ArrayList<>();
+        categories.forEach(c -> this.categories.add(new Category(c.value())));
         this.categoriesChangeListeners =
                 new ArrayList<>() {
                     {

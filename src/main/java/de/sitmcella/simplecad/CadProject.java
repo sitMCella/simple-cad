@@ -344,13 +344,16 @@ public class CadProject
 
     @Override
     public void categoriesChanged(CategoriesChangeEvent categoriesChangeEvent) {
-        this.categories = categoriesChangeEvent.getCategories();
+        var removedCategory = this.categories.stream().filter(category -> !categoriesChangeEvent.getCategories().contains(category)).findFirst();
+        var newCategories = new ArrayList<>(categoriesChangeEvent.getCategories());
+        this.categories = newCategories;
         this.projectCategories.setCategories(this.categories);
         this.line.setCategories(this.categories);
         this.curve.setCategories(this.categories);
         this.canvasStorage.setCategories(this.categories);
         this.projectFilter.setCategories(this.categories);
         this.cadProperties.setCategories(this.categories);
+        removedCategory.ifPresent(this.cadCanvas::removeCategory);
     }
 
     @Override
