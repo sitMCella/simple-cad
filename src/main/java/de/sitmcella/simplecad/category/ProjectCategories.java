@@ -130,7 +130,7 @@ public class ProjectCategories {
         tashButton.setId("trash-button");
         tashButton.setOnMouseClicked(
                 (e) -> {
-                    if(selectedCategory.getText() != existentCategories.getComboBox().getValue()) {
+                    if(!selectedCategory.getText().equals(existentCategories.getComboBox().getValue())) {
                         return;
                     }
                     List<Category> updatedCategories = new ArrayList<>();
@@ -160,7 +160,7 @@ public class ProjectCategories {
                 event -> {
                     if (event.getCode() == KeyCode.ENTER) {
                         var newCategoryValue = addCategory.getText();
-                        if(this.categories.contains(new Category(newCategoryValue))) {
+                        if(this.categories.contains(new Category(newCategoryValue)) || Categories.isNone(newCategoryValue)) {
                             return;
                         }
                         List<Category> newCategories = new ArrayList<>();
