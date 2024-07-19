@@ -32,7 +32,7 @@ import de.sitmcella.simplecad.property.CanvasPropertyListener;
 import de.sitmcella.simplecad.property.CanvasSizeProperty;
 import de.sitmcella.simplecad.property.CurveProperty;
 import de.sitmcella.simplecad.property.LineProperty;
-import de.sitmcella.simplecad.property.ProjectConfiguration;
+import de.sitmcella.simplecad.property.ProjectCategories;
 import de.sitmcella.simplecad.property.ProjectFilter;
 import de.sitmcella.simplecad.property.ShapeType;
 import de.sitmcella.simplecad.storage.CanvasStorage;
@@ -87,7 +87,7 @@ public class CadProject
 
     private final CanvasStorage canvasStorage;
 
-    private final ProjectConfiguration projectConfiguration;
+    private final ProjectCategories projectCategories;
 
     private final ProjectFilter projectFilter;
 
@@ -127,7 +127,7 @@ public class CadProject
                     }
                 };
         this.canvasStorage = new CanvasStorage(cadCanvas, line, curve, categories, this);
-        this.projectConfiguration = new ProjectConfiguration(rightPanelSection, categories, this);
+        this.projectCategories = new ProjectCategories(rightPanelSection, categories, this);
         this.projectFilter = new ProjectFilter(rightPanelSection, categories, this);
     }
 
@@ -146,7 +146,7 @@ public class CadProject
             case FILE_OPEN -> canvasStorage.open(menuItemEvent.getParameter());
             case FILE_SAVE -> canvasStorage.save(menuItemEvent.getParameter());
             case FILE_CLOSE -> Platform.exit();
-            case PROJECT_CONFIGURATION -> projectConfiguration.open();
+            case PROJECT_CATEGORIES -> projectCategories.open();
             case PROJECT_FILTER -> projectFilter.open(this.selectedCategory);
             default -> logger.info("Unknown MenuItemEvent");
         }
@@ -345,7 +345,7 @@ public class CadProject
     @Override
     public void categoriesChanged(CategoriesChangeEvent categoriesChangeEvent) {
         this.categories = categoriesChangeEvent.getCategories();
-        this.projectConfiguration.setCategories(this.categories);
+        this.projectCategories.setCategories(this.categories);
         this.line.setCategories(this.categories);
         this.curve.setCategories(this.categories);
         this.canvasStorage.setCategories(this.categories);

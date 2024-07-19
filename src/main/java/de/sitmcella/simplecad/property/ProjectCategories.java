@@ -23,7 +23,7 @@ import org.kordamp.ikonli.javafx.FontIcon;
 import org.kordamp.ikonli.materialdesign2.MaterialDesignC;
 import org.kordamp.ikonli.materialdesign2.MaterialDesignT;
 
-public class ProjectConfiguration {
+public class ProjectCategories {
 
     private static final FontIcon TRASH_ICON = new FontIcon(MaterialDesignT.TRASH_CAN);
 
@@ -39,7 +39,7 @@ public class ProjectConfiguration {
 
     private final List<CategoriesChangeListener> categoriesChangeListeners;
 
-    public ProjectConfiguration(
+    public ProjectCategories(
             final Pane rightPanelSection,
             List<Category> categories,
             final CategoriesChangeListener categoriesChangeListener) {
