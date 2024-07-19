@@ -69,8 +69,7 @@ public class Shape implements PropertiesListener {
     }
 
     protected Category getCategory(String categoryValue) {
-        return categoryValue != null
-                && categoryExists(new Category(categoryValue))
+        return categoryValue != null && categoryExists(new Category(categoryValue))
                 ? new Category(categoryValue)
                 : null;
     }

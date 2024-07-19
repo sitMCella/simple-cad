@@ -52,7 +52,7 @@ public class Line extends Shape implements ShapeDrawer {
                                 startPoint.getCenterY());
                 this.line = line;
                 this.stage = LineDrawerStage.END;
-                        var shapes = new ArrayList<CadShape>();
+                var shapes = new ArrayList<CadShape>();
                 shapes.add(new CadShape(startPoint, null));
                 shapes.add(new CadShape(line, null));
                 return new Shapes(shapes, line);
