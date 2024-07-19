@@ -108,10 +108,11 @@ public class ProjectCategories {
                 event -> {
                     if (event.getCode() == KeyCode.ENTER) {
                         var newCategoryValue = selectedCategory.getText();
-                        if(this.categories.contains(new Category(newCategoryValue))) {
+                        if (this.categories.contains(new Category(newCategoryValue))) {
                             return;
                         }
-                        var selectedCategoryValue = (String)existentCategories.getComboBox().getValue();
+                        var selectedCategoryValue =
+                                (String) existentCategories.getComboBox().getValue();
                         List<Category> newCategories = new ArrayList<>();
                         this.categories.stream().forEach(c -> newCategories.add(c));
                         newCategories.remove(new Category(selectedCategoryValue));
@@ -130,11 +131,14 @@ public class ProjectCategories {
         tashButton.setId("trash-button");
         tashButton.setOnMouseClicked(
                 (e) -> {
-                    if(!selectedCategory.getText().equals(existentCategories.getComboBox().getValue())) {
+                    if (!selectedCategory
+                            .getText()
+                            .equals(existentCategories.getComboBox().getValue())) {
                         return;
                     }
                     List<Category> updatedCategories = new ArrayList<>();
-                    this.categories.stream().forEach(c -> updatedCategories.add(new Category(c.value())));
+                    this.categories.stream()
+                            .forEach(c -> updatedCategories.add(new Category(c.value())));
                     updatedCategories.remove(new Category(selectedCategory.getText()));
                     categoriesChangeListeners.forEach(
                             categoriesChangeListener ->
@@ -160,7 +164,8 @@ public class ProjectCategories {
                 event -> {
                     if (event.getCode() == KeyCode.ENTER) {
                         var newCategoryValue = addCategory.getText();
-                        if(this.categories.contains(new Category(newCategoryValue)) || Categories.isNone(newCategoryValue)) {
+                        if (this.categories.contains(new Category(newCategoryValue))
+                                || Categories.isNone(newCategoryValue)) {
                             return;
                         }
                         List<Category> newCategories = new ArrayList<>();

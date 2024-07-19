@@ -7,7 +7,9 @@ public enum Categories {
 
     private final String text;
 
-    Categories(final String text) {this.text = text;}
+    Categories(final String text) {
+        this.text = text;
+    }
 
     public String getText() {
         return this.text;

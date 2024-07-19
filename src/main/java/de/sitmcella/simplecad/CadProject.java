@@ -344,8 +344,16 @@ public class CadProject
 
     @Override
     public void categoriesChanged(CategoriesChangeEvent categoriesChangeEvent) {
-        var removedCategory = this.categories.stream().filter(category -> !categoriesChangeEvent.getCategories().contains(category)).findFirst();
-        var modifiedCategory = categoriesChangeEvent.getCategories().stream().filter(c -> !this.categories.contains(c)).findFirst();
+        var removedCategory =
+                this.categories.stream()
+                        .filter(
+                                category ->
+                                        !categoriesChangeEvent.getCategories().contains(category))
+                        .findFirst();
+        var modifiedCategory =
+                categoriesChangeEvent.getCategories().stream()
+                        .filter(c -> !this.categories.contains(c))
+                        .findFirst();
         var newCategories = new ArrayList<>(categoriesChangeEvent.getCategories());
         this.categories = newCategories;
         this.projectCategories.setCategories(this.categories);
@@ -354,9 +362,9 @@ public class CadProject
         this.canvasStorage.setCategories(this.categories);
         this.projectFilter.setCategories(this.categories);
         this.cadProperties.setCategories(this.categories);
-        if(removedCategory.isPresent() && !modifiedCategory.isPresent()) {
+        if (removedCategory.isPresent() && !modifiedCategory.isPresent()) {
             this.cadCanvas.removeCategory(removedCategory.get());
-        } else if(removedCategory.isPresent() && modifiedCategory.isPresent()) {
+        } else if (removedCategory.isPresent() && modifiedCategory.isPresent()) {
             this.cadCanvas.modifyCategory(removedCategory.get(), modifiedCategory.get());
         }
     }
