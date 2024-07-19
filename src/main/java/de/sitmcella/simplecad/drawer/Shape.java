@@ -3,7 +3,7 @@ package de.sitmcella.simplecad.drawer;
 import de.sitmcella.simplecad.CadCanvas;
 import de.sitmcella.simplecad.CadShape;
 import de.sitmcella.simplecad.CanvasPoint;
-import de.sitmcella.simplecad.Category;
+import de.sitmcella.simplecad.category.Category;
 import de.sitmcella.simplecad.operation.OperationAction;
 import java.util.ArrayList;
 import java.util.List;
@@ -45,7 +45,8 @@ public class Shape implements PropertiesListener {
         this.button = button;
         this.drawerProperties =
                 new DrawerProperties(DrawActions.SELECT, OperationAction.NULL, false);
-        this.categories = categories;
+        this.categories = new ArrayList<>();
+        categories.forEach(c -> this.categories.add(new Category(c.value())));
     }
 
     @Override
@@ -66,6 +67,12 @@ public class Shape implements PropertiesListener {
                 shapeDrawerListener ->
                         shapeDrawerListener.shapeDrawerChanged(
                                 new ShapeDrawerChangeEvent(mouseEvent, this.drawAction)));
+    }
+
+    protected Category getCategory(String categoryValue) {
+        return categoryValue != null && categoryExists(new Category(categoryValue))
+                ? new Category(categoryValue)
+                : null;
     }
 
     protected boolean categoryExists(Category category) {
@@ -100,7 +107,14 @@ public class Shape implements PropertiesListener {
         }
     }
 
-    public boolean isActive(CadShape cadShape) {
-        return cadShape.shape().getStroke().equals(Color.BLACK);
+    protected void configureStroke(
+            javafx.scene.shape.Shape shape, CadCanvas cadCanvas, Category category) {
+        if (cadCanvas.getSelectedCategory() == null) {
+            shape.setStroke(Color.BLACK);
+        } else if (category == null || !category.equals(cadCanvas.getSelectedCategory())) {
+            shape.setStroke(Color.gray(0.7));
+        } else {
+            shape.setStroke(Color.BLACK);
+        }
     }
 }

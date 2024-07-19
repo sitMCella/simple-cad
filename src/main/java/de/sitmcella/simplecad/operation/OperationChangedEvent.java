@@ -7,7 +7,7 @@ public class OperationChangedEvent extends EventObject {
     private final OperationAction operationAction;
 
     /**
-     * Constructs an Operation Action Event.
+     * Constructs an Operation Change Event.
      *
      * @param source the object on which the Event initially occurred
      * @throws IllegalArgumentException if source is null

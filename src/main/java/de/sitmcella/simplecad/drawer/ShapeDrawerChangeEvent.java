@@ -7,7 +7,7 @@ public class ShapeDrawerChangeEvent extends EventObject {
     private final DrawActions drawAction;
 
     /**
-     * Constructs a prototypical Event.
+     * Constructs a Shape Drawer Change Event.
      *
      * @param source the object on which the Event initially occurred
      * @throws IllegalArgumentException if source is null

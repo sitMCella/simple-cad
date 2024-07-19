@@ -1,4 +1,4 @@
-package de.sitmcella.simplecad;
+package de.sitmcella.simplecad.category;
 
 import java.util.EventListener;
 

@@ -1,8 +1,7 @@
-package de.sitmcella.simplecad.property;
+package de.sitmcella.simplecad.category;
 
-import de.sitmcella.simplecad.Category;
-import de.sitmcella.simplecad.FilterEvent;
-import de.sitmcella.simplecad.FilterListener;
+import de.sitmcella.simplecad.property.DropDownSection;
+import de.sitmcella.simplecad.property.PropertiesUtility;
 import java.util.ArrayList;
 import java.util.List;
 import javafx.beans.value.ChangeListener;
@@ -40,7 +39,8 @@ public class ProjectFilter {
             FilterListener filterListener) {
         this.propertiesUtility = new PropertiesUtility();
         this.rightPanelSection = rightPanelSection;
-        this.categories = categories;
+        this.categories = new ArrayList<>();
+        categories.forEach(c -> this.categories.add(new Category(c.value())));
         for (Node child : rightPanelSection.getChildren()) {
             this.tabPane = (TabPane) child;
         }

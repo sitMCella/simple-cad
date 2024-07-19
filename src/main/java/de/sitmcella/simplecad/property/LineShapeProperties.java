@@ -1,7 +1,7 @@
 package de.sitmcella.simplecad.property;
 
 import de.sitmcella.simplecad.CadShape;
-import de.sitmcella.simplecad.Category;
+import de.sitmcella.simplecad.category.Category;
 import java.util.List;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;

@@ -3,9 +3,10 @@ package de.sitmcella.simplecad.storage;
 import static de.sitmcella.simplecad.property.ShapeType.LINE;
 
 import de.sitmcella.simplecad.CadCanvas;
-import de.sitmcella.simplecad.CategoriesChangeEvent;
-import de.sitmcella.simplecad.CategoriesChangeListener;
-import de.sitmcella.simplecad.Category;
+import de.sitmcella.simplecad.category.Categories;
+import de.sitmcella.simplecad.category.CategoriesChangeEvent;
+import de.sitmcella.simplecad.category.CategoriesChangeListener;
+import de.sitmcella.simplecad.category.Category;
 import de.sitmcella.simplecad.property.ShapeType;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -47,7 +48,8 @@ public class CanvasStorage {
         this.cadCanvas = cadCanvas;
         this.line = line;
         this.curve = curve;
-        this.categories = categories;
+        this.categories = new ArrayList<>();
+        categories.forEach(c -> this.categories.add(new Category(c.value())));
         this.categoriesChangeListeners =
                 new ArrayList<>() {
                     {
@@ -74,7 +76,7 @@ public class CanvasStorage {
                     };
             printWriter.println(convertToCSV(canvasData));
             if (this.categories.isEmpty()) {
-                printWriter.println(convertToCSV(new String[] {"None"}));
+                printWriter.println(convertToCSV(new String[] {Categories.NONE.getText()}));
             } else {
                 var categoryEntries = this.categories.stream().map(Category::value).toList();
                 String[] categoriesData = categoryEntries.toArray(String[]::new);
@@ -84,10 +86,7 @@ public class CanvasStorage {
                     .forEach(
                             shape -> {
                                 var shapeType = getShapeTypeFromShape(shape.shape());
-                                var categoryValue =
-                                        shape.category() != null
-                                                ? shape.category().value()
-                                                : "None";
+                                var categoryValue = Categories.getCategoryValue(shape.category());
                                 switch (shapeType) {
                                     case LINE -> {
                                         var line = (Line) shape.shape();
@@ -144,7 +143,7 @@ public class CanvasStorage {
                 return;
             }
             var categoriesEntries = getRecordFromLine(scanner.nextLine());
-            if (categoriesEntries.size() == 1 && categoriesEntries.contains("None")) {
+            if (Categories.isNone(categoriesEntries)) {
                 this.categories = new ArrayList<>();
             } else {
                 this.categories = categoriesEntries.stream().map(Category::new).toList();

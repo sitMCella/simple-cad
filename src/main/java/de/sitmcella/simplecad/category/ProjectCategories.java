@@ -1,8 +1,7 @@
-package de.sitmcella.simplecad.property;
+package de.sitmcella.simplecad.category;
 
-import de.sitmcella.simplecad.CategoriesChangeEvent;
-import de.sitmcella.simplecad.CategoriesChangeListener;
-import de.sitmcella.simplecad.Category;
+import de.sitmcella.simplecad.property.DropDownSection;
+import de.sitmcella.simplecad.property.PropertiesUtility;
 import java.util.ArrayList;
 import java.util.List;
 import javafx.beans.value.ChangeListener;
@@ -23,7 +22,7 @@ import org.kordamp.ikonli.javafx.FontIcon;
 import org.kordamp.ikonli.materialdesign2.MaterialDesignC;
 import org.kordamp.ikonli.materialdesign2.MaterialDesignT;
 
-public class ProjectConfiguration {
+public class ProjectCategories {
 
     private static final FontIcon TRASH_ICON = new FontIcon(MaterialDesignT.TRASH_CAN);
 
@@ -39,12 +38,13 @@ public class ProjectConfiguration {
 
     private final List<CategoriesChangeListener> categoriesChangeListeners;
 
-    public ProjectConfiguration(
+    public ProjectCategories(
             final Pane rightPanelSection,
             List<Category> categories,
             final CategoriesChangeListener categoriesChangeListener) {
         this.rightPanelSection = rightPanelSection;
-        this.categories = categories;
+        this.categories = new ArrayList<>();
+        categories.forEach(c -> this.categories.add(new Category(c.value())));
         this.propertiesUtility = new PropertiesUtility();
         for (Node child : rightPanelSection.getChildren()) {
             this.tabPane = (TabPane) child;
@@ -104,12 +104,46 @@ public class ProjectConfiguration {
                                     selectedCategory.setText(newValue);
                                 });
 
+        selectedCategory.setOnKeyPressed(
+                event -> {
+                    if (event.getCode() == KeyCode.ENTER) {
+                        var newCategoryValue = selectedCategory.getText();
+                        if (this.categories.contains(new Category(newCategoryValue))) {
+                            return;
+                        }
+                        var selectedCategoryValue =
+                                (String) existentCategories.getComboBox().getValue();
+                        List<Category> newCategories = new ArrayList<>();
+                        this.categories.stream().forEach(c -> newCategories.add(c));
+                        newCategories.remove(new Category(selectedCategoryValue));
+                        newCategories.add(new Category(newCategoryValue));
+                        categoriesChangeListeners.forEach(
+                                categoriesChangeListener ->
+                                        categoriesChangeListener.categoriesChanged(
+                                                new CategoriesChangeEvent(this, newCategories)));
+                        existentCategories.getComboBox().getItems().remove(selectedCategoryValue);
+                        existentCategories.getComboBox().getItems().add(newCategoryValue);
+                    }
+                });
+
         Button tashButton = new Button();
         tashButton.setGraphic(TRASH_ICON);
         tashButton.setId("trash-button");
         tashButton.setOnMouseClicked(
                 (e) -> {
-                    this.categories.remove(new Category(selectedCategory.getText()));
+                    if (!selectedCategory
+                            .getText()
+                            .equals(existentCategories.getComboBox().getValue())) {
+                        return;
+                    }
+                    List<Category> updatedCategories = new ArrayList<>();
+                    this.categories.stream()
+                            .forEach(c -> updatedCategories.add(new Category(c.value())));
+                    updatedCategories.remove(new Category(selectedCategory.getText()));
+                    categoriesChangeListeners.forEach(
+                            categoriesChangeListener ->
+                                    categoriesChangeListener.categoriesChanged(
+                                            new CategoriesChangeEvent(this, updatedCategories)));
                     existentCategories.getComboBox().getItems().remove(selectedCategory.getText());
                     selectedCategory.setText("");
                 });
@@ -129,14 +163,19 @@ public class ProjectConfiguration {
         addCategory.setOnKeyPressed(
                 event -> {
                     if (event.getCode() == KeyCode.ENTER) {
+                        var newCategoryValue = addCategory.getText();
+                        if (this.categories.contains(new Category(newCategoryValue))
+                                || Categories.isNone(newCategoryValue)) {
+                            return;
+                        }
                         List<Category> newCategories = new ArrayList<>();
                         this.categories.stream().forEach(c -> newCategories.add(c));
-                        newCategories.add(new Category(addCategory.getText()));
+                        newCategories.add(new Category(newCategoryValue));
                         categoriesChangeListeners.forEach(
                                 categoriesChangeListener ->
                                         categoriesChangeListener.categoriesChanged(
                                                 new CategoriesChangeEvent(this, newCategories)));
-                        existentCategories.getComboBox().getItems().add(addCategory.getText());
+                        existentCategories.getComboBox().getItems().add(newCategoryValue);
                         addCategory.setText("");
                     }
                 });

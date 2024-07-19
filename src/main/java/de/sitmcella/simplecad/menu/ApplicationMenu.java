@@ -95,7 +95,7 @@ public class ApplicationMenu {
         menuBar.getMenus().add(menu);
 
         Menu projectMenu = new Menu("Project");
-        MenuItem projectConfiguration = new MenuItem(MenuItemValue.PROJECT_CONFIGURATION.getText());
+        MenuItem projectConfiguration = new MenuItem(MenuItemValue.PROJECT_CATEGORIES.getText());
 
         EventHandler<ActionEvent> menuSettingsEvent =
                 event -> {

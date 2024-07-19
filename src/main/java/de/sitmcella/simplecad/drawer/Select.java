@@ -2,7 +2,7 @@ package de.sitmcella.simplecad.drawer;
 
 import de.sitmcella.simplecad.CadCanvas;
 import de.sitmcella.simplecad.CadShape;
-import de.sitmcella.simplecad.Category;
+import de.sitmcella.simplecad.category.Category;
 import java.util.Collections;
 import java.util.List;
 import javafx.scene.input.MouseEvent;

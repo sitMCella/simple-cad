@@ -7,7 +7,7 @@ public class PropertiesChangeEvent extends EventObject {
     private final DrawerProperties drawerProperties;
 
     /**
-     * Constructs a prototypical Event.
+     * Constructs a Properties Change Event.
      *
      * @param source the object on which the Event initially occurred
      * @throws IllegalArgumentException if source is null
