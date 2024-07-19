@@ -188,18 +188,13 @@ public class Curve extends Shape implements ShapeDrawer {
             double endX,
             double endY,
             String category) {
+        var categoryEntry = getCategory(category);
         javafx.scene.shape.QuadCurve curve =
-                create(startX, startY, controlX, controlY, endX, endY, new Category(category));
+                create(startX, startY, controlX, controlY, endX, endY, categoryEntry);
         Circle startPoint = new Circle(startX, startY, 3.0d);
         startPoint.setOnMouseExited(this.cadCanvas::handlePointMouseExited);
         Circle endPoint = new Circle(endX, endY, 3.0d);
         endPoint.setOnMouseExited(this.cadCanvas::handlePointMouseExited);
-        var categoryEntry =
-                category != null
-                                && !category.equals("None")
-                                && categoryExists(new Category(category))
-                        ? new Category(category)
-                        : null;
         var shapes = new ArrayList<CadShape>();
         shapes.add(new CadShape(startPoint, categoryEntry));
         shapes.add(new CadShape(curve, categoryEntry));
@@ -219,11 +214,7 @@ public class Curve extends Shape implements ShapeDrawer {
         curve.setControlY(curveProperty.controlY());
         curve.setEndX(curveProperty.endX());
         curve.setEndY(curveProperty.endY());
-        var categoryEntry =
-                curveProperty.category() != null
-                                && categoryExists(new Category(curveProperty.category()))
-                        ? new Category(curveProperty.category())
-                        : null;
+        var categoryEntry = getCategory(curveProperty.category());
         this.cadCanvas.cadShape = new CadShape(curve, categoryEntry);
         var initialStartPoint = this.cadCanvas.getPoint(curve, curveStartX, curveStartY);
         var startCircle = initialStartPoint.circle();

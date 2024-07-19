@@ -68,6 +68,13 @@ public class Shape implements PropertiesListener {
                                 new ShapeDrawerChangeEvent(mouseEvent, this.drawAction)));
     }
 
+    protected Category getCategory(String categoryValue) {
+        return categoryValue != null
+                && categoryExists(new Category(categoryValue))
+                ? new Category(categoryValue)
+                : null;
+    }
+
     protected boolean categoryExists(Category category) {
         return this.categories.contains(category);
     }
